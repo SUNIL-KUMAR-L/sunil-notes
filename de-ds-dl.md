@@ -37,3 +37,6 @@ https://www.techtarget.com/searchenterpriseai/definition/machine-learning-ML
 
 What is Machine Learning? “In Simple English”  : https://yannmjl.medium.com/what-is-machine-learning-in-simple-english-b0aaa251cb60
 
+
+Machine Learning Explained in 100 Seconds (fireship video) : https://www.youtube.com/watch?v=PeMlggyqz0Y  
+
