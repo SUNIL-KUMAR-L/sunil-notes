@@ -133,3 +133,15 @@ In general, companies with strong brands, intellectual property, network effects
 ```
 
 
+### Can you provide an example of a company where EV/EBITDA is more useful than PE ratio?
+
+EV/EBITDA can be more useful than PE ratio for companies with significant debt or capital structures that impact earnings. Some examples:
+
+• Highly leveraged companies: For companies with a lot of debt, interest charges can significantly impact net income and PE ratio. But EBITDA ignores interest, so EV/EBITDA is a better metric for valuing highly leveraged companies.
+
+• Real estate companies: Real estate companies have depreciation charges that reduce net income but don't actually impact cash flow. So EBITDA is better for capturing cash flow, and EV/EBITDA is more useful than PE for valuing real estate companies.
+
+• Private equity companies: PE firms and investment companies have complex capital structures. EBITDA focuses on operating earnings independent of capital structure, so EV/EBITDA is better than PE ratio for valuing these types of companies.
+
+In general, if a company has significant interest charges, depreciation, or other impacts to net income that don't reflect core operating earnings, then EV/EBITDA can be a more useful valuation metric than PE ratio. It provides a cleaner perspective of operating performance.
+
