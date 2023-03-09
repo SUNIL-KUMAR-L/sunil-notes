@@ -17,9 +17,9 @@ A lower PE ratio could mean a stock is a bargain relative to its earnings,
 while a higher PE ratio could mean a stock's price is expensive relative to its earnings. 
 However, it should be used along with other metrics to analyze stocks.
 
-Can you give me an example of a stock with a high PE ratio?
+###  an example of a stock with a high PE ratio?
 
-Sure, here are some examples of stocks with typically high PE ratios:
+here are some examples of stocks with typically high PE ratios:
 
 • Technology companies like Amazon, Netflix, Tesla, etc. These companies are expected to grow earnings rapidly, so investors are willing to pay a premium for the stock. For example, Netflix currently has a PE ratio of around 50.
 
