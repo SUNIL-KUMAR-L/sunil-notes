@@ -653,3 +653,85 @@ admin>
 
 
 ```
+
+```
+mongodb docker
+
+docker pull mongo
+
+results in getting mongoDB docker image on local
+
+Using default tag: latest
+latest: Pulling from library/mongo
+b2ddfd337773: Pull complete 
+2217df6bf2b5: Pull complete 
+29c228992bd2: Pull complete 
+fc95cad02df0: Pull complete 
+2c411bcb7900: Pull complete 
+2086fcd3f2dc: Pull complete 
+0ff48fd69cff: Pull complete 
+434eda66f547: Pull complete 
+18000c72efc8: Pull complete 
+Digest: sha256:cc4522f3f5c0d3435046eb51b1d8a633d8e24d8e661b6ba127a98e5519d11bde
+Status: Downloaded newer image for mongo:latest
+docker.io/library/mongo:latest
+
+docker run -d -p 27017:27017 --name MONGO_CONTAINER mongo:latest
+results in running mongoDB on local with below container-id
+
+10af509f762f24b119c043c371ba5020f93f479e7b3544f5d33df87d9839e2bc
+
+
+docker ps
+
+results as below on my local
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                           NAMES
+10af509f762f   mongo:latest   "docker-entrypoint.s…"   12 seconds ago   Up 10 seconds   0.0.0.0:27017->27017/tcp, :::27017->27017/tcp   MONGO_CONTAINER
+
+execute some software inside docker image (bash shell)...
+
+docker exec -it MONGO_CONTAINER bash
+
+now you are indise MongDB image ...
+
+# execute mongosh 
+root@10af509f762f:/# mongosh
+Current Mongosh Log ID:	64238c36d0a46e93ca6e8fb3
+Connecting to:		mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+1.8.0
+Using MongoDB:		6.0.5
+Using Mongosh:		1.8.0
+
+For mongosh info see: https://docs.mongodb.com/mongodb-shell/
+
+
+To help improve our products, anonymous usage data is collected and sent to MongoDB periodically (https://www.mongodb.com/legal/privacy-policy).
+You can opt-out by running the disableTelemetry() command.
+
+------
+   The server generated these startup warnings when booting
+   2023-03-29T00:53:19.174+00:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem
+   2023-03-29T00:53:19.831+00:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+   2023-03-29T00:53:19.831+00:00: vm.max_map_count is too low
+------
+
+------
+   Enable MongoDB's free cloud-based monitoring service, which will then receive and display
+   metrics about your deployment (disk utilization, CPU, operation statistics, etc).
+   
+   The monitoring data will be available on a MongoDB website with a unique URL accessible to you
+   and anyone you share the URL with. MongoDB may use this information to make product
+   improvements and to suggest MongoDB products and deployment options to you.
+   
+   To enable free monitoring, run the following command: db.enableFreeMonitoring()
+   To permanently disable this reminder, run the following command: db.disableFreeMonitoring()
+------
+
+test> show dbs
+admin   40.00 KiB
+config  12.00 KiB
+local   40.00 KiB
+test> use admin
+switched to db admin
+
+admin> 
+```
