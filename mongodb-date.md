@@ -525,4 +525,15 @@ admin> db.collection.find ( {"my_date" : { $type: "string" }} ).pretty();
 admin> 
 
 ```
+docker desktop
+https://www.docker.com/products/docker-desktop/
+
+docker mongo 
+https://hub.docker.com/_/mongo
+docker pull mongo
+
+Docker MongoShell
+https://dev.to/arantespp/mongodb-shell-commands-running-on-docker-101-1l73
+
+https://www.timestamp-converter.com/
 
