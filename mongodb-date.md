@@ -345,7 +345,10 @@ On the other hand, graph databases are designed to store and manage complex rela
 In summary, blockchain is suitable for applications that require secure and transparent record-keeping, while graph databases are suitable for applications that require efficient management of complex relationships between data entities.
 
 
-### isodate date attribute
+###  lexicographic comparison on ISO8601 formatted strings would not be the same as ISODate object comparison within MongoDB.
+
+#### isodate date attribute
+
 ```
 
 admin> db.person.insertOne({ "name": "Jill", "age": 31, "my_date": ISODate("2021-07-01T00:00:00.000Z") });
@@ -375,3 +378,109 @@ admin> db.person.find({ "my_date": ISODate("2021-06-30T20:00:00.000-04:00") });
 ]
 admin> 
 ```
+
+
+#### date attribute value used as string value in ISO8601 datetime format
+
+```
+admin> db.collection.insertOne({
+...   "name": "John",
+...   "age": 30,
+...   "my_date": "2023-03-28T08:00:00-04:00"
+... });
+{
+  acknowledged: true,
+  insertedId: ObjectId("64238cb096f383fca22d1e30")
+}
+admin> db.collection.insertOne({ "name": "Jill", "age": 31, "my_date": "2021-07-01T00:00:00.000Z" });
+{
+  acknowledged: true,
+  insertedId: ObjectId("64238d1d96f383fca22d1e31")
+}
+admin> db.collection.insertOne({ "name": "Jonny", "age": 33, "my_date": "2021-06-30T20:00:00.000-04:00" });
+{
+  acknowledged: true,
+  insertedId: ObjectId("64238d5196f383fca22d1e32")
+}
+admin> db.collection.find();
+[
+  {
+    _id: ObjectId("64238cb096f383fca22d1e30"),
+    name: 'John',
+    age: 30,
+    my_date: '2023-03-28T08:00:00-04:00'
+  },
+  {
+    _id: ObjectId("64238d1d96f383fca22d1e31"),
+    name: 'Jill',
+    age: 31,
+    my_date: '2021-07-01T00:00:00.000Z'
+  },
+  {
+    _id: ObjectId("64238d5196f383fca22d1e32"),
+    name: 'Jonny',
+    age: 33,
+    my_date: '2021-06-30T20:00:00.000-04:00'
+  }
+]
+admin> db.collection.find({ "my_date": "2021-07-01T00:00:00.000Z" })
+[
+  {
+    _id: ObjectId("64238d1d96f383fca22d1e31"),
+    name: 'Jill',
+    age: 31,
+    my_date: '2021-07-01T00:00:00.000Z'
+  }
+]
+admin> db.collection.find({ "my_date": "2021-06-30T20:00:00.000-04:00" })
+[
+  {
+    _id: ObjectId("64238d5196f383fca22d1e32"),
+    name: 'Jonny',
+    age: 33,
+    my_date: '2021-06-30T20:00:00.000-04:00'
+  }
+]
+admin> db.collection.find({ "my_date":{"$eq" : "2021-06-30T20:00:00.000-04:00"} });
+[
+  {
+    _id: ObjectId("64238d5196f383fca22d1e32"),
+    name: 'Jonny',
+    age: 33,
+    my_date: '2021-06-30T20:00:00.000-04:00'
+  }
+]
+admin> db.collection.find({ "my_date":{"$gte" : "2021-06-30T20:00:00.000-04:00"} });
+[
+  {
+    _id: ObjectId("64238cb096f383fca22d1e30"),
+    name: 'John',
+    age: 30,
+    my_date: '2023-03-28T08:00:00-04:00'
+  },
+  {
+    _id: ObjectId("64238d1d96f383fca22d1e31"),
+    name: 'Jill',
+    age: 31,
+    my_date: '2021-07-01T00:00:00.000Z'
+  },
+  {
+    _id: ObjectId("64238d5196f383fca22d1e32"),
+    name: 'Jonny',
+    age: 33,
+    my_date: '2021-06-30T20:00:00.000-04:00'
+  }
+]
+admin> db.collection.find({ "my_date":{"$lte" : "2021-06-30T20:00:00.000-04:00"} });
+[
+  {
+    _id: ObjectId("64238d5196f383fca22d1e32"),
+    name: 'Jonny',
+    age: 33,
+    my_date: '2021-06-30T20:00:00.000-04:00'
+  }
+]
+
+```
+
+
