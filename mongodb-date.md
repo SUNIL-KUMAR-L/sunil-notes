@@ -343,3 +343,35 @@ Blockchain is a distributed ledger technology that allows secure and transparent
 On the other hand, graph databases are designed to store and manage complex relationships between data entities such as people, products, and social networks. They are often used for recommendation engines, fraud detection, and knowledge management. Graph databases are characterized by their ability to handle large amounts of data with high performance, flexibility, and scalability.
 
 In summary, blockchain is suitable for applications that require secure and transparent record-keeping, while graph databases are suitable for applications that require efficient management of complex relationships between data entities.
+
+
+### isodate date attribute
+```
+
+admin> db.person.insertOne({ "name": "Jill", "age": 31, "my_date": ISODate("2021-07-01T00:00:00.000Z") });
+{
+  acknowledged: true,
+  insertedId: ObjectId("64238ebb96f383fca22d1e33")
+}
+admin> db.person.insertOne({ "name": "Jonny", "age": 32, "my_date": ISODate("2021-06-30T20:00:00.000-04:00") });
+{
+  acknowledged: true,
+  insertedId: ObjectId("64238f0296f383fca22d1e34")
+}
+admin> db.person.find({ "my_date": ISODate("2021-06-30T20:00:00.000-04:00") });
+[
+  {
+    _id: ObjectId("64238ebb96f383fca22d1e33"),
+    name: 'Jill',
+    age: 31,
+    my_date: ISODate("2021-07-01T00:00:00.000Z")
+  },
+  {
+    _id: ObjectId("64238f0296f383fca22d1e34"),
+    name: 'Jonny',
+    age: 32,
+    my_date: ISODate("2021-07-01T00:00:00.000Z")
+  }
+]
+admin> 
+```
