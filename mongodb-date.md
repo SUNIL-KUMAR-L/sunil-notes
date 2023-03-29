@@ -540,3 +540,116 @@ https://www.timestamp-converter.com/
 mongodb compass ide
 https://www.mongodb.com/try/download/compass
 
+
+```
+insert new records with my_date as ISODate and also have my_date_str as presentable string as inserted ...
+
+db.person.insertOne({ 
+"name": "Sunil", 
+"age": 33, 
+"my_date": ISODate("2021-07-01T00:00:00.000Z"),
+"my_date_str": "2021-07-01T00:00:00.000Z" 
+});
+
+db.person.insertOne({ 
+"name": "Kiran", 
+"age": 34, 
+"my_date": ISODate("2021-06-30T20:00:00.000-04:00"),
+"my_date_str": "2021-06-30T20:00:00.000-04:00" 
+});
+
+
+admin> db.person.find().pretty();
+[
+  {
+    _id: ObjectId("64238ebb96f383fca22d1e33"),
+    name: 'Jill',
+    age: 31,
+    my_date: ISODate("2021-07-01T00:00:00.000Z")
+  },
+  {
+    _id: ObjectId("64238f0296f383fca22d1e34"),
+    name: 'Jonny',
+    age: 32,
+    my_date: ISODate("2021-07-01T00:00:00.000Z")
+  },
+  {
+    _id: ObjectId("6424430fbdee2452cdf25c06"),
+    name: 'Sunil',
+    age: 33,
+    my_date: ISODate("2021-07-01T00:00:00.000Z"),
+    my_date_str: '2021-07-01T00:00:00.000Z'
+  },
+  {
+    _id: ObjectId("6424433fbdee2452cdf25c07"),
+    name: 'Kiran',
+    age: 34,
+    my_date: ISODate("2021-07-01T00:00:00.000Z"),
+    my_date_str: '2021-06-30T20:00:00.000-04:00'
+  }
+]
+
+admin> db.person.find({"my_date" : {"$gte" : ISODate("2021-06-30T20:00:00.000-04:00")}}).pretty();
+[
+  {
+    _id: ObjectId("64238ebb96f383fca22d1e33"),
+    name: 'Jill',
+    age: 31,
+    my_date: ISODate("2021-07-01T00:00:00.000Z")
+  },
+  {
+    _id: ObjectId("64238f0296f383fca22d1e34"),
+    name: 'Jonny',
+    age: 32,
+    my_date: ISODate("2021-07-01T00:00:00.000Z")
+  },
+  {
+    _id: ObjectId("6424430fbdee2452cdf25c06"),
+    name: 'Sunil',
+    age: 33,
+    my_date: ISODate("2021-07-01T00:00:00.000Z"),
+    my_date_str: '2021-07-01T00:00:00.000Z'
+  },
+  {
+    _id: ObjectId("6424433fbdee2452cdf25c07"),
+    name: 'Kiran',
+    age: 34,
+    my_date: ISODate("2021-07-01T00:00:00.000Z"),
+    my_date_str: '2021-06-30T20:00:00.000-04:00'
+  }
+]
+admin> db.person.find({"my_date" : {"$gte" : ISODate("2021-07-01T00:00:00.000Z")}}).pretty();
+[
+  {
+    _id: ObjectId("64238ebb96f383fca22d1e33"),
+    name: 'Jill',
+    age: 31,
+    my_date: ISODate("2021-07-01T00:00:00.000Z")
+  },
+  {
+    _id: ObjectId("64238f0296f383fca22d1e34"),
+    name: 'Jonny',
+    age: 32,
+    my_date: ISODate("2021-07-01T00:00:00.000Z")
+  },
+  {
+    _id: ObjectId("6424430fbdee2452cdf25c06"),
+    name: 'Sunil',
+    age: 33,
+    my_date: ISODate("2021-07-01T00:00:00.000Z"),
+    my_date_str: '2021-07-01T00:00:00.000Z'
+  },
+  {
+    _id: ObjectId("6424433fbdee2452cdf25c07"),
+    name: 'Kiran',
+    age: 34,
+    my_date: ISODate("2021-07-01T00:00:00.000Z"),
+    my_date_str: '2021-06-30T20:00:00.000-04:00'
+  }
+]
+admin> 
+
+2021-07-01T00:00:00.000Z is same as 2021-06-30T20:00:00.000-04:00 where the unix timestamp in milliseconds = 1625097600000
+
+
+```
