@@ -483,4 +483,46 @@ admin> db.collection.find({ "my_date":{"$lte" : "2021-06-30T20:00:00.000-04:00"}
 
 ```
 
+```shell
+admin> db.person.find ( {"my_date" : { $type: "date" }} ).pretty();
+[
+  {
+    _id: ObjectId("64238ebb96f383fca22d1e33"),
+    name: 'Jill',
+    age: 31,
+    my_date: ISODate("2021-07-01T00:00:00.000Z")
+  },
+  {
+    _id: ObjectId("64238f0296f383fca22d1e34"),
+    name: 'Jonny',
+    age: 32,
+    my_date: ISODate("2021-07-01T00:00:00.000Z")
+  }
+]
+admin> db.collection.find ( {"my_date" : { $type: "date" }} ).pretty();
+
+admin> db.collection.find ( {"my_date" : { $type: "string" }} ).pretty();
+[
+  {
+    _id: ObjectId("64238cb096f383fca22d1e30"),
+    name: 'John',
+    age: 30,
+    my_date: '2023-03-28T08:00:00-04:00'
+  },
+  {
+    _id: ObjectId("64238d1d96f383fca22d1e31"),
+    name: 'Jill',
+    age: 31,
+    my_date: '2021-07-01T00:00:00.000Z'
+  },
+  {
+    _id: ObjectId("64238d5196f383fca22d1e32"),
+    name: 'Jonny',
+    age: 33,
+    my_date: '2021-06-30T20:00:00.000-04:00'
+  }
+]
+admin> 
+
+```
 
