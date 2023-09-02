@@ -1,4 +1,4 @@
-**write a quick project where scala and java class are custom written and used together... Show me the project structure, maven pom.xml and the project file .scala and .java**
+## Quick project where scala and java class are custom written and used together... Show me the project structure, maven pom.xml and the project file .scala and .java
 
 
 Certainly! Here's an example of a project structure that includes both Scala and Java classes, along with the Maven pom.xml file:
