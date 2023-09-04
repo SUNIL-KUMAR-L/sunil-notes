@@ -361,3 +361,205 @@ The PersonControllerTest class demonstrates how to write a test for the PersonCo
 
 Please note that the provided code snippets are for illustrative purposes, and you may need to adjust them according to your specific project
 ```
+
+**`In the above context, if the REDIS Config is ON then execute as above ... if REDIS Config is OFF then fetch Person from MongoDB directly what would be the code change?`**
+
+
+`To conditionally fetch the person data from Redis or MongoDB based on the Redis configuration, you can update the code as follows:`
+
+**1. Create a configuration property to control the Redis availability:**
+```java
+@ConfigurationProperties(prefix = "redis")
+public class RedisProperties {
+    private boolean enabled;
+
+    // getter and setter for 'enabled' property
+}
+```
+
+**2. Update the `PersonService` class to handle the conditional fetching:**
+```java
+@Service
+public class PersonService {
+    private final PersonRepository redisPersonRepository;
+    private final PersonRepository mongoPersonRepository;
+    private final RedisProperties redisProperties;
+    private final Logger logger = LoggerFactory.getLogger(PersonService.class);
+
+    public PersonService(@Qualifier("redisPersonRepository") PersonRepository redisPersonRepository,
+                         @Qualifier("mongoPersonRepository") PersonRepository mongoPersonRepository,
+                         RedisProperties redisProperties) {
+        this.redisPersonRepository = redisPersonRepository;
+        this.mongoPersonRepository = mongoPersonRepository;
+        this.redisProperties = redisProperties;
+    }
+
+    public Mono<Person> getPersonById(String id) {
+        if (redisProperties.isEnabled()) {
+            return redisPersonRepository.findById(id)
+                    .flatMap(person -> {
+                        logger.info("Person found in Redis cache.");
+                        return Mono.just(person);
+                    })
+                    .switchIfEmpty(fetchFromMongo(id)
+                            .doOnNext(person -> logger.info("Person fetched from MongoDB.")))
+                    .switchIfEmpty(Mono.error(new RuntimeException("Person not found")));
+        } else {
+            return fetchFromMongo(id)
+                    .doOnNext(person -> logger.info("Person fetched from MongoDB."));
+        }
+    }
+
+    private Mono<Person> fetchFromMongo(String id) {
+        return mongoPersonRepository.findById(id);
+    }
+}
+```
+
+`In the updated code, a `RedisProperties` class is introduced to hold the Redis configuration property `enabled`. The `PersonService` class now takes an instance of `RedisProperties` as a constructor parameter.
+
+The `getPersonById` method checks the value of `redisProperties.isEnabled()` to determine whether Redis is enabled or not. If Redis is enabled, it attempts to fetch the person data from Redis first. If the data is not found in Redis, it falls back to fetching from MongoDB, and appropriate logging messages are printed accordingly.
+
+If Redis is not enabled, it directly fetches the person data from MongoDB, and the logging message for fetching from MongoDB is printed.
+
+Make sure to configure the `redis.enabled` property in your application configuration, such as `application.properties` or `application.yml`, to control the Redis availability.`
+
+**`show me the full project application config`**
+
+Certainly! Here's an example of a full project configuration setup that includes the application configuration, Redis configuration, and MongoDB configuration:
+
+**application.properties:**
+
+```properties
+# Redis Configuration
+redis.enabled=true
+spring.redis.host=localhost
+spring.redis.port=6379
+
+# MongoDB Configuration
+spring.data.mongodb.uri=mongodb://localhost:27017/mydatabase
+```
+
+**RedisConfig.java:**
+
+```java
+@Configuration
+public class RedisConfig {
+
+    @Value("${spring.redis.host}")
+    private String redisHost;
+
+    @Value("${spring.redis.port}")
+    private int redisPort;
+
+    @Bean
+    public LettuceConnectionFactory redisConnectionFactory() {
+        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration(redisHost, redisPort);
+        return new LettuceConnectionFactory(redisConfig);
+    }
+
+    @Bean
+    public ReactiveRedisTemplate<String, Person> reactiveRedisTemplate(ReactiveRedisConnectionFactory connectionFactory) {
+        Jackson2JsonRedisSerializer<Person> serializer = new Jackson2JsonRedisSerializer<>(Person.class);
+        RedisSerializationContext<String, Person> serializationContext = RedisSerializationContext
+                .<String, Person>newSerializationContext()
+                .key(serializer)
+                .value(serializer)
+                .build();
+        return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);
+    }
+}
+```
+
+**MongoDBConfig.java:**
+
+```java
+@Configuration
+public class MongoDBConfig {
+
+    @Value("${spring.data.mongodb.uri}")
+    private String mongoUri;
+
+    @Bean
+    public ReactiveMongoTemplate reactiveMongoTemplate() {
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString(mongoUri))
+                .build();
+        MongoClient mongoClient = MongoClients.create(settings);
+        return new ReactiveMongoTemplate(mongoClient, "mydatabase");
+    }
+}
+```
+
+**RepositoryConfig.java:**
+
+```java
+@Configuration
+public class RepositoryConfig {
+
+    @Bean("redisPersonRepository")
+    public PersonRepository redisPersonRepository(ReactiveRedisTemplate<String, Person> redisTemplate) {
+        return new RedisPersonRepository(redisTemplate);
+    }
+
+    @Bean("mongoPersonRepository")
+    public PersonRepository mongoPersonRepository(ReactiveMongoTemplate mongoTemplate) {
+        return new MongoPersonRepository(mongoTemplate);
+    }
+}
+```
+
+**PersonService.java:**
+
+```java
+@Service
+public class PersonService {
+
+    private final PersonRepository redisPersonRepository;
+    private final PersonRepository mongoPersonRepository;
+    private final RedisProperties redisProperties;
+    private final Logger logger = LoggerFactory.getLogger(PersonService.class);
+
+    public PersonService(@Qualifier("redisPersonRepository") PersonRepository redisPersonRepository,
+                         @Qualifier("mongoPersonRepository") PersonRepository mongoPersonRepository,
+                         RedisProperties redisProperties) {
+        this.redisPersonRepository = redisPersonRepository;
+        this.mongoPersonRepository = mongoPersonRepository;
+        this.redisProperties = redisProperties;
+    }
+
+    public Mono<Person> getPersonById(String id) {
+        if (redisProperties.isEnabled()) {
+            return redisPersonRepository.findById(id)
+                    .flatMap(person -> {
+                        logger.info("Person found in Redis cache.");
+                        return Mono.just(person);
+                    })
+                    .switchIfEmpty(fetchFromMongo(id)
+                            .doOnNext(person -> logger.info("Person fetched from MongoDB.")))
+                    .switchIfEmpty(Mono.error(new RuntimeException("Person not found")));
+        } else {
+            return fetchFromMongo(id)
+                    .doOnNext(person -> logger.info("Person fetched from MongoDB."));
+        }
+    }
+
+    private Mono<Person> fetchFromMongo(String id) {
+        return mongoPersonRepository.findById(id);
+    }
+}
+```
+
+**In this example, we have the following files:**
+
+- `application.properties` for general application configuration.
+- `RedisConfig.java` for configuring Redis connection using Lettuce Redis client.
+- `MongoDBConfig.java` for configuring MongoDB connection using the MongoDB Java driver.
+- `RepositoryConfig.java` for defining the Redis and MongoDB repositories as beans.
+- `PersonService.java` as a service class that interacts with the repositories and handles conditional fetching based on the Redis availability.
+
+`Make sure to include the necessary dependencies in your project, such as `spring-boot-starter-data-redis` and `spring-boot-starter-data-mongodb`, along with the appropriate versions.
+
+Feel free to adjust the configurations and code to match your specific project requirements.`
+
+
