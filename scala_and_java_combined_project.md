@@ -185,7 +185,108 @@ Here's an example of the output you would expect:
 [INFO] ------------------------------------------------------------------------
 ```
 
+### is there any compile step to compile and bundle into one jar?
 
+
+Yes, to compile and bundle your Scala project into a single JAR file, you can use the Maven Assembly Plugin. This plugin allows you to create an executable JAR that includes all the necessary dependencies.
+
+To configure the Maven Assembly Plugin in your project, you need to make some modifications to the `pom.xml` file. Here's an updated version of the `pom.xml` file with the necessary modifications:
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ... -->
+
+    <build>
+        <plugins>
+            <!-- ... -->
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>2.15.6</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.mycompany.MyScalaClass</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- ... -->
+
+</project>
+```
+
+With the updated `pom.xml` file, you can now run the following command to compile and bundle your project into a single JAR file:
+
+```
+mvn clean package
+```
+
+This command will trigger the Maven build process, which will compile your Scala code, run tests, and create an executable JAR file. The JAR file will be generated in the `target` directory with the name specified by the `artifactId` and `version` in your `pom.xml` file.
+
+After running the command successfully, you can execute the JAR file using the `java -jar` command:
+
+```
+java -jar target/my-project-1.0.0.jar
+```
+
+Replace `my-project-1.0.0.jar` with the actual name of your JAR file.
+
+Executing the JAR file will produce the following output:
+
+```
+Result: 25
+```
+
+That's it! Now you have a bundled executable JAR file that includes all the necessary dependencies.
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\ 
 
 ## Quick project where scala and java class are custom written and used with-in same project structure
 
