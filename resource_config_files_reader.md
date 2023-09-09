@@ -209,6 +209,57 @@ Ensure that the configuration files are stored within the JAR file under the spe
 
 Please note that this approach assumes the configuration files are stored within the JAR file itself. If the JAR file is being executed from a different location, or if the configuration files are external to the JAR file, this approach may not work as expected.
 
+The package dependency for the `ConfigLoader` class would typically include the following:
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.11.0</version>
+    </dependency>
+</dependencies>
+```
+
+This dependency is added to use the `JarFile` class and related classes for accessing the JAR file entries.
+
+Here's an updated `pom.xml` file that includes the above dependency:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>config-loader</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+    </dependencies>
+</project>
+```
+
+Make sure to replace the `groupId`, `artifactId`, and `version` values with appropriate values for your project.
+
+After updating the `pom.xml` file, you can build the project using Maven to resolve the dependency:
+
+```
+mvn clean install
+```
+
+This will download the required dependencies and build the project.
 
 
 
