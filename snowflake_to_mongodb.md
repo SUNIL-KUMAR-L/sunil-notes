@@ -1,3 +1,239 @@
+## write scala code to pick up data from snowflake table and then persist to mongoDB collection as batch size of 100 in upsert mode
+### also, show me the project strcuture and pom.xml of the above
+
+
+Here's an example of Scala code that retrieves data from a Snowflake table and persists it in a MongoDB collection in batch size of 100, using the upsert mode:
+
+```scala
+import com.mongodb.MongoClientURI
+import com.mongodb.spark.MongoSpark
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import net.snowflake.spark.snowflake._
+
+object SnowflakeToMongoDB {
+
+  def main(args: Array[String]): Unit = {
+    // Snowflake connection parameters
+    val sfOptions = Map(
+      "sfURL" -> "<snowflake_url>",
+      "sfDatabase" -> "<snowflake_database>",
+      "sfWarehouse" -> "<snowflake_warehouse>",
+      "sfRole" -> "<snowflake_role>",
+      "sfUser" -> "<snowflake_username>",
+      "sfPassword" -> "<snowflake_password>"
+    )
+
+    // MongoDB connection parameters
+    val mongoUri = "<mongodb_uri>"
+    val database = "<mongodb_database>"
+    val collection = "<mongodb_collection>"
+
+    // Spark configuration
+    val sparkSession = SparkSession.builder()
+      .appName("SnowflakeToMongoDB")
+      .config("spark.mongodb.output.uri", mongoUri)
+      .getOrCreate()
+
+    // Read data from Snowflake table
+    val snowflakeConfig = sparkSession
+      .read
+      .format("net.snowflake.spark.snowflake")
+      .options(sfOptions)
+      .option("query", "SELECT * FROM snowflake_table")
+      .load()
+
+    // Upsert data to MongoDB in batches of 100
+    writeDataToMongoDB(snowflakeConfig, database, collection, 100)
+
+    // Stop Spark session
+    sparkSession.stop()
+  }
+
+  def writeDataToMongoDB(dataFrame: DataFrame, database: String, collection: String, batchSize: Int): Unit = {
+    val writeConfig = Map(
+      "uri" -> s"mongodb://localhost/$database.$collection",
+      "database" -> database,
+      "collection" -> collection,
+      "replaceDocument" -> "false",
+      "maxBatchSize" -> batchSize.toString
+    )
+
+    MongoSpark.save(dataFrame.write
+      .format("com.mongodb.spark.sql.DefaultSource")
+      .mode("append")
+      .options(writeConfig)
+    )
+  }
+}
+```
+
+To use this code, you'll need to have the following dependencies in your `pom.xml` file:
+
+```xml
+<dependencies>
+    <!-- Spark -->
+    <dependency>
+        <groupId>org.apache.spark</groupId>
+        <artifactId>spark-core_2.12</artifactId>
+        <version>3.1.2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.spark</groupId>
+        <artifactId>spark-sql_2.12</artifactId>
+        <version>3.1.2</version>
+    </dependency>
+
+    <!-- Snowflake Spark Connector -->
+    <dependency>
+        <groupId>net.snowflake</groupId>
+        <artifactId>spark-snowflake_2.12</artifactId>
+        <version>2.10.4</version>
+    </dependency>
+
+    <!-- MongoDB Spark Connector -->
+    <dependency>
+        <groupId>org.mongodb.spark</groupId>
+        <artifactId>mongo-spark-connector_2.12</artifactId>
+        <version>3.0.1</version>
+    </dependency>
+</dependencies>
+```
+
+Make sure to replace the `<snowflake_*>` and `<mongodb_*>` placeholders with your actual Snowflake and MongoDB connection details. Also, update the Snowflake table name in the query (`SELECT * FROM snowflake_table`) to the desired table name.
+
+Regarding the project structure, it should follow the standard Maven project structure. Here's an example:
+
+```
+project-root
+├── src
+│   └── main
+│       ├── scala
+│       │   └── SnowflakeToMongoDB.scala
+│       └── resources
+│           └── <empty>
+└── pom.xml
+```
+
+The Scala code should be placed under the `src/main/scala` directory, and the `pom.xml` file should be at the project root.
+
+Remember to configure the necessary Snowflake and MongoDB connection details in the code before running the application.
+
+
+`Here's an example of how you can provide the Snowflake and MongoDB connection configurations within the `resources` folder of your project.`
+
+Assuming you have the following structure:
+
+```
+project-root
+├── src
+│   └── main
+│       ├── scala
+│       │   └── SnowflakeToMongoDB.scala
+│       └── resources
+│           ├── snowflake.conf
+│           └── mongodb.conf
+└── pom.xml
+```
+
+You can create separate configuration files for Snowflake and MongoDB within the `resources` folder.
+
+1. `snowflake.conf`:
+```properties
+sfURL=<snowflake_url>
+sfDatabase=<snowflake_database>
+sfWarehouse=<snowflake_warehouse>
+sfRole=<snowflake_role>
+sfUser=<snowflake_username>
+sfPassword=<snowflake_password>
+```
+
+2. `mongodb.conf`:
+```properties
+mongoUri=<mongodb_uri>
+database=<mongodb_database>
+collection=<mongodb_collection>
+```
+
+In your `SnowflakeToMongoDB.scala` code, you can read these configuration files using the `ConfigFactory` from the Typesafe Config library. Here's an updated version of the code:
+
+```scala
+import com.mongodb.spark.MongoSpark
+import com.typesafe.config.{Config, ConfigFactory}
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import net.snowflake.spark.snowflake._
+
+object SnowflakeToMongoDB {
+
+  def main(args: Array[String]): Unit = {
+    val sparkSession = SparkSession.builder()
+      .appName("SnowflakeToMongoDB")
+      .getOrCreate()
+
+    val snowflakeConfig = loadSnowflakeConfig()
+    val mongoConfig = loadMongoConfig()
+
+    val dataFrame = readDataFromSnowflake(sparkSession, snowflakeConfig)
+    writeDataToMongoDB(dataFrame, mongoConfig)
+
+    sparkSession.stop()
+  }
+
+  def loadSnowflakeConfig(): Config = {
+    ConfigFactory.load("snowflake.conf")
+  }
+
+  def loadMongoConfig(): Config = {
+    ConfigFactory.load("mongodb.conf")
+  }
+
+  def readDataFromSnowflake(sparkSession: SparkSession, config: Config): DataFrame = {
+    val options = config.entrySet().toArray.map { entry =>
+      entry.getKey -> entry.getValue.unwrapped().toString
+    }.toMap
+
+    sparkSession
+      .read
+      .format("net.snowflake.spark.snowflake")
+      .options(options)
+      .option("query", "SELECT * FROM snowflake_table")
+      .load()
+  }
+
+  def writeDataToMongoDB(dataFrame: DataFrame, config: Config): Unit = {
+    val writeConfig = config.entrySet().toArray.map { entry =>
+      entry.getKey -> entry.getValue.unwrapped().toString
+    }.toMap
+
+    MongoSpark.save(dataFrame.write
+      .format("com.mongodb.spark.sql.DefaultSource")
+      .mode("append")
+      .options(writeConfig)
+    )
+  }
+}
+```
+
+In this updated code, the `loadSnowflakeConfig()` and `loadMongoConfig()` methods load the respective configuration files using the Typesafe Config library. The configuration properties are then passed to the Snowflake and MongoDB connection methods.
+
+Ensure that you have the Typesafe Config library as a dependency in your `pom.xml` file:
+
+```xml
+<dependency>
+    <groupId>com.typesafe</groupId>
+    <artifactId>config</artifactId>
+    <version>1.4.1</version>
+</dependency>
+```
+
+By using separate configuration files, you can easily modify the connection details without modifying the code itself. It provides better flexibility and separation of configuration from code.
+
+Make sure to replace the `<snowflake_*>` and `<mongodb_*>` placeholders in the configuration files with your actual Snowflake and MongoDB connection details.
+
+
+
+
+
+
 ### write scala code to pick up data from snowflake table and then persist to mongoDB collection as batch size of 100 in upsert mode
 
 ```
