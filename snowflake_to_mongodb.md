@@ -336,6 +336,31 @@ Additionally, create the `snowflake.conf` and `mongodb.conf` files in the `resou
 
 Remember to replace `<snowflake_*>` and `<mongodb_*>` placeholders in the configuration files with your actual Snowflake and MongoDB connection details.
 
+### snowflake.conf and mongodb.conf details
+
+Here's an example of the contents for `snowflake.conf` and `mongodb.conf` configuration files:
+
+1. `snowflake.conf`:
+```properties
+sfURL=<snowflake_url>
+sfDatabase=<snowflake_database>
+sfWarehouse=<snowflake_warehouse>
+sfRole=<snowflake_role>
+sfUser=<snowflake_username>
+sfPassword=<snowflake_password>
+```
+Replace `<snowflake_url>`, `<snowflake_database>`, `<snowflake_warehouse>`, `<snowflake_role>`, `<snowflake_username>`, and `<snowflake_password>` with your actual Snowflake connection details.
+
+2. `mongodb.conf`:
+```properties
+mongoUri=<mongodb_uri>
+database=<mongodb_database>
+collection=<mongodb_collection>
+```
+Replace `<mongodb_uri>`, `<mongodb_database>`, and `<mongodb_collection>` with your actual MongoDB connection details.
+
+Ensure that you have these configuration files (`snowflake.conf` and `mongodb.conf`) present in the `resources` folder of your project and that the placeholders are replaced with the appropriate values.
+
 
 
 
