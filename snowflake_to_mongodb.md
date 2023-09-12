@@ -231,6 +231,112 @@ Make sure to replace the `<snowflake_*>` and `<mongodb_*>` placeholders in the c
 
 
 
+`how do you specify upsert is true with batch size update?`
+To specify that the MongoDB write operation should perform upserts (update or insert) and set the batch size for updates, you can modify the `writeConfig` as follows:
+
+```scala
+def writeDataToMongoDB(dataFrame: DataFrame, config: Config): Unit = {
+  val writeConfig = config.entrySet().toArray.map { entry =>
+    entry.getKey -> entry.getValue.unwrapped().toString
+  }.toMap + ("replaceDocument" -> "true", "maxBatchSize" -> "100")
+
+  MongoSpark.save(dataFrame.write
+    .format("com.mongodb.spark.sql.DefaultSource")
+    .mode("append")
+    .options(writeConfig)
+  )
+}
+```
+
+In the `writeConfig` map, we add two additional entries: `"replaceDocument" -> "true"` and `"maxBatchSize" -> "100"`. These entries configure the MongoDB write operation to perform upserts and set the batch size for updates to 100.
+
+By setting `"replaceDocument" -> "true"`, MongoDB will attempt to update existing documents and insert new documents if they don't already exist.
+
+By setting `"maxBatchSize" -> "100"`, the write operation will process the data in batches of 100 documents at a time.
+
+Feel free to adjust the batch size value (`100` in this example) as per your requirements.
+
+Remember to update your `mongodb.conf` file accordingly:
+
+```properties
+mongoUri=<mongodb_uri>
+database=<mongodb_database>
+collection=<mongodb_collection>
+```
+
+Make sure to replace `<mongodb_uri>`, `<mongodb_database>`, and `<mongodb_collection>` with your actual MongoDB connection details.
+
+With these modifications, the code will perform upserts and use a batch size of 100 for updating data into the MongoDB collection.
+
+
+### full code of SnowflakeToMongoDB
+
+Here's the full code for the `SnowflakeToMongoDB` Scala application that retrieves data from a Snowflake table and persists it to a MongoDB collection with upsert mode and a batch size of 100:
+
+```scala
+import com.mongodb.spark.MongoSpark
+import com.typesafe.config.{Config, ConfigFactory}
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import net.snowflake.spark.snowflake._
+
+object SnowflakeToMongoDB {
+
+  def main(args: Array[String]): Unit = {
+    val sparkSession = SparkSession.builder()
+      .appName("SnowflakeToMongoDB")
+      .getOrCreate()
+
+    val snowflakeConfig = loadSnowflakeConfig()
+    val mongoConfig = loadMongoConfig()
+
+    val dataFrame = readDataFromSnowflake(sparkSession, snowflakeConfig)
+    writeDataToMongoDB(dataFrame, mongoConfig)
+
+    sparkSession.stop()
+  }
+
+  def loadSnowflakeConfig(): Config = {
+    ConfigFactory.load("snowflake.conf")
+  }
+
+  def loadMongoConfig(): Config = {
+    ConfigFactory.load("mongodb.conf")
+  }
+
+  def readDataFromSnowflake(sparkSession: SparkSession, config: Config): DataFrame = {
+    val options = config.entrySet().toArray.map { entry =>
+      entry.getKey -> entry.getValue.unwrapped().toString
+    }.toMap
+
+    sparkSession
+      .read
+      .format("net.snowflake.spark.snowflake")
+      .options(options)
+      .option("query", "SELECT * FROM snowflake_table")
+      .load()
+  }
+
+  def writeDataToMongoDB(dataFrame: DataFrame, config: Config): Unit = {
+    val writeConfig = config.entrySet().toArray.map { entry =>
+      entry.getKey -> entry.getValue.unwrapped().toString
+    }.toMap + ("replaceDocument" -> "true", "maxBatchSize" -> "100")
+
+    MongoSpark.save(dataFrame.write
+      .format("com.mongodb.spark.sql.DefaultSource")
+      .mode("append")
+      .options(writeConfig)
+    )
+  }
+}
+```
+
+Make sure you have the necessary dependencies in your `pom.xml` file, including Spark, Snowflake Spark Connector, MongoDB Spark Connector, and Typesafe Config.
+
+Additionally, create the `snowflake.conf` and `mongodb.conf` files in the `resources` folder of your project and provide the respective configuration details.
+
+Remember to replace `<snowflake_*>` and `<mongodb_*>` placeholders in the configuration files with your actual Snowflake and MongoDB connection details.
+
+
 
 
 
