@@ -1,0 +1,3 @@
+- [spark sql doc](https://spark.apache.org/docs/3.2.0/sql-programming-guide.html)
+- [spark sql - get started](https://spark.apache.org/docs/3.2.0/sql-getting-started.html)
+- [spark sql doc - JSON](https://spark.apache.org/docs/3.2.0/sql-data-sources-json.html) 
