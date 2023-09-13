@@ -1,3 +1,10 @@
+###  MongoDB Spark Connector
+- [Getting Started](https://www.mongodb.com/docs/spark-connector/current/getting-started/)
+- [Write Configuration Options](https://www.mongodb.com/docs/spark-connector/current/configuration/write/)
+- [Read Configuration Options](https://www.mongodb.com/docs/spark-connector/current/configuration/read/)
+
+- [Spark savemode](https://spark.apache.org/docs/3.2.0/sql-data-sources-load-save-functions.html#save-modes)
+
 ## write scala code to pick up data from snowflake table and then persist to mongoDB collection as batch size of 100 in upsert mode
 ### also, show me the project strcuture and pom.xml of the above
 
