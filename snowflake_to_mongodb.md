@@ -4,6 +4,7 @@
 - [Read Configuration Options](https://www.mongodb.com/docs/spark-connector/current/configuration/read/)
 
 - [Spark savemode](https://spark.apache.org/docs/3.2.0/sql-data-sources-load-save-functions.html#save-modes)
+- [MongoSpark](https://www.javadoc.io/doc/org.mongodb.spark/mongo-spark-connector_2.11/2.3.2/com/mongodb/spark/MongoSpark$.html)
 
 ## write scala code to pick up data from snowflake table and then persist to mongoDB collection as batch size of 100 in upsert mode
 ### also, show me the project strcuture and pom.xml of the above
