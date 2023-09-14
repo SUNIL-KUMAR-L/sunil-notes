@@ -11,6 +11,103 @@
 
 Here's an example of Scala code that retrieves data from a Snowflake table and persists it in a MongoDB collection in batch size of 100, using the upsert mode:
 
+# 1
+
+```scala
+import org.apache.spark.sql.{SparkSession, DataFrame}
+import org.apache.spark.sql.functions._
+import com.mongodb.spark.MongoSpark
+
+object MyApp {
+  def main(args: Array[String]): Unit = {
+    // Create Spark session
+    val spark = SparkSession.builder()
+      .appName("Snowflake to MongoDB")
+      .config("spark.mongodb.output.uri", "mongodb://localhost/mydatabase.my_collection")
+      .getOrCreate()
+
+    // Read data from Snowflake table
+    val snowflakeDF: DataFrame = spark.read
+      .format("net.snowflake.spark.snowflake")
+      .option("sfURL", "snowflake_url")
+      .option("sfAccount", "snowflake_account")
+      .option("sfWarehouse", "snowflake_warehouse")
+      .option("sfDatabase", "snowflake_database")
+      .option("sfSchema", "snowflake_schema")
+      .option("sfRole", "snowflake_role")
+      .option("sfUser", "snowflake_user")
+      .option("sfPassword", "snowflake_password")
+      .option("dbtable", "my_table")
+      .load()
+
+    // Filter and select only the required columns for upsert
+    val filteredDF: DataFrame = snowflakeDF.select(col("person_id"), col("name"), col("age"))
+      .filter(col("person_id").isNotNull)
+
+    // Count the number of records
+    val numRecords = filteredDF.count()
+
+    // Log the number of records
+    println(s"Number of records: $numRecords")
+
+    // Set the batch size for upsert
+    val batchSize = 1000
+
+    // Calculate the number of batches
+    val numBatches = math.ceil(numRecords.toDouble / batchSize.toDouble).toInt
+
+    // Write data to MongoDB collection with upsert operation in batches
+    var batchCount = 0
+
+    filteredDF.foreachPartition(iter => {
+      val partitionId = TaskContext.getPartitionId()
+      val batchId = TaskContext.get().stageId()
+      val batchProgress = batchCount * batchSize
+      val totalProgress = batchId * batchSize + batchProgress
+      val count = iter.length
+
+      println(s"Partition $partitionId - Processing Batch $batchId: $batchProgress / $numRecords records processed")
+
+      // Prepare the batch of data for upsert
+      val batchData = iter.map { row =>
+        val personId = row.getAs[Int]("person_id")
+        val name = row.getAs[String]("name")
+        val age = row.getAs[Int]("age")
+
+        // Create a document with _id and the fields to update
+        val document = org.bson.Document.parse(s"""{ "_id": $personId, "name": "$name", "age": $age }""")
+        document
+      }.toList
+
+      // Perform upsert operation for the current batch
+      val mongoConnector = MongoSpark.writeConfig(spark.sparkContext.getConf)
+      mongoConnector.withOptions(Map("collection" -> "my_collection", "updateDocument" -> "true"))
+        .append(batchData)
+
+/*
+//other approach is 
+      // Perform upsert operation for the current batch
+      val writeConfig = WriteConfig(Map("collection" -> "my_collection", , "updateDocument" -> "true"))
+      val mongoConnector = MongoSpark.writeConfig(writeConfig)
+      mongoConnector.mode("append").mongoDF(spark.createDataFrame(batchData, classOf[org.bson.Document]))
+*/
+/* another appoach is 
+// Perform upsert operation for the current batch
+      val writeConfig = WriteConfig(Map("collection" -> "my_collection", "updateDocument" -> "false"))
+      //MongoSpark.write(batchDF, writeConfig).mode("append").save()
+batchDF.write.format("mongodb").mode("append").save()
+
+*/
+      batchCount += 1
+    })
+
+    // Stop the Spark session
+    spark.stop()
+  }
+}
+```
+
+# 2
 ```scala
 import com.mongodb.MongoClientURI
 import com.mongodb.spark.MongoSpark
