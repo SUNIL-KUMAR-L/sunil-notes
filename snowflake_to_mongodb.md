@@ -81,6 +81,7 @@ object MyApp {
       }.toList
 
       // Perform upsert operation for the current batch
+      val batchDF = spark.createDataFrame(batchData, classOf[org.bson.Document])
       batchDF.mode("append")
         .options(Map("collection" -> "my_collection", "updateDocument" -> "true"))
         .save()
