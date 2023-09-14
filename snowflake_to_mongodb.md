@@ -81,9 +81,16 @@ object MyApp {
       }.toList
 
       // Perform upsert operation for the current batch
+      batchDF.mode("append")
+        .options(Map("collection" -> "my_collection", "updateDocument" -> "true"))
+        .save()
+
+/*
+      // Perform upsert operation for the current batch
       val mongoConnector = MongoSpark.writeConfig(spark.sparkContext.getConf)
       mongoConnector.withOptions(Map("collection" -> "my_collection", "updateDocument" -> "true"))
         .append(batchData)
+*/
 
 /*
 //other approach is 
@@ -96,7 +103,10 @@ object MyApp {
 // Perform upsert operation for the current batch
       val writeConfig = WriteConfig(Map("collection" -> "my_collection", "updateDocument" -> "false"))
       //MongoSpark.write(batchDF, writeConfig).mode("append").save()
-batchDF.write.format("mongodb").mode("append").save()
+//batchDF.write.format("mongodb").mode("append").save()
+batchDF.mode("append")
+.options(Map("collection" -> "my_collection", "updateDocument" -> "true"))
+.save()
 
 */
       batchCount += 1
