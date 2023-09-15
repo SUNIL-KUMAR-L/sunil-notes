@@ -455,6 +455,98 @@ With these changes, the application will call the `PersonInfo` service first, re
 
 Please note that this is a simplified example, and you may need to adapt the code to fit your specific use case and replace the placeholder implementation with your actual logic or service calls.
 
+### non reactive spting boot web application
+
+To build the same application as a non-reactive Spring Boot application, you can use traditional servlet-based programming. Here's the modified code and `pom.xml` file:
+
+1. `PersonController.java`:
+```java
+@RestController
+public class PersonController {
+    private final PersonInfoService personInfoService;
+    private final PersonAddressService personAddressService;
+
+    // ...
+
+    @GetMapping("/person/{personId}")
+    public Person getPersonDetails(@PathVariable String personId) {
+        PersonInfo personInfo = personInfoService.getPersonInfo(personId);
+        List<PersonAddress> personAddresses = personAddressService.getPersonAddresses(personInfo.getAddressIds());
+        return new Person(personInfo, personAddresses);
+    }
+}
+```
+
+2. `PersonInfoService.java`:
+```java
+@Service
+public class PersonInfoService {
+    private final PersonAddressService personAddressService;
+
+    @Autowired
+    public PersonInfoService(PersonAddressService personAddressService) {
+        this.personAddressService = personAddressService;
+    }
+
+    public PersonInfo getPersonInfo(String personId) {
+        // Implementation to fetch person info from a service
+        // Replace with your actual logic or service call
+        return new PersonInfo("John Doe", 30, Arrays.asList("addressId1", "addressId2"));
+    }
+
+    public List<PersonAddress> getPersonAddresses(List<String> addressIds) {
+        List<PersonAddress> personAddresses = new ArrayList<>();
+        for (String addressId : addressIds) {
+            PersonAddress personAddress = personAddressService.getPersonAddress(addressId);
+            personAddresses.add(personAddress);
+        }
+        return personAddresses;
+    }
+}
+```
+
+3. `PersonAddressService.java`:
+```java
+@Service
+public class PersonAddressService {
+    public PersonAddress getPersonAddress(String addressId) {
+        // Implementation to fetch person address from a service
+        // Replace with your actual logic or service call
+        return new PersonAddress(addressId + " Street", addressId + " City");
+    }
+}
+```
+
+4. `Person.java`:
+```java
+@Data
+@AllArgsConstructor
+public class Person {
+    private PersonInfo personInfo;
+    private List<PersonAddress> personAddresses;
+}
+```
+
+5. `pom.xml` (dependencies):
+```xml
+<!-- Add Spring Web MVC dependency -->
+<dependencies>
+    <!-- Other dependencies... -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+</dependencies>
+```
+
+With these changes, you can build a non-reactive Spring Boot application where the `PersonController` retrieves the person information from the `PersonInfoService`, gets the list of address IDs, and then calls the `PersonAddressService` to fetch the person addresses. The final response is wrapped in the `Person` object.
+
+Make sure to include the necessary dependencies in the `pom.xml` file, such as `spring-boot-starter-web`, to enable Spring Web MVC.
+
+Please note that this non-reactive implementation uses synchronous blocking calls, which may impact performance in high-concurrency scenarios. If you require a reactive, non-blocking approach, consider using Spring WebFlux and reactive libraries.
+
+
+
 
 
 
