@@ -1,0 +1,377 @@
+## SPRING  BOOT REACTIVE APPLICATION 
+
+ Here's an example project structure for a reactive Spring Boot web application that connects to two services in parallel and collects their data to produce a final output. I'll also provide a Maven `pom.xml` file with the necessary dependencies.
+
+Project Structure:
+```
+└── src
+    └── main
+        ├── java
+        │   └── com
+        │       └── example
+        │           └── demo
+        │               ├── DemoApplication.java
+        │               ├── controller
+        │               │   └── PersonController.java
+        │               ├── model
+        │               │   ├── Person.java
+        │               │   ├── PersonAddress.java
+        │               │   └── PersonInfo.java
+        │               ├── service
+        │               │   ├── PersonAddressService.java
+        │               │   └── PersonInfoService.java
+        │               └── util
+        │                   └── ResponseTimeLogger.java
+        └── resources
+            └── application.properties
+```
+
+Maven `pom.xml`:
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <java.version>11</java.version>
+        <spring-boot.version>2.5.4</spring-boot.version>
+    </properties>
+
+    <dependencies>
+        <!-- Spring Boot Web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Actuator (for health check and metrics) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Lombok (for reducing boilerplate code) -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Maven Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <!-- Spring Boot Maven Plugin -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+Explanation of the project structure:
+- The main class `DemoApplication` is the entry point of the Spring Boot application.
+- The `controller` package contains the `PersonController` class, which defines the REST API endpoints.
+- The `model` package contains the data models: `Person`, `PersonAddress`, and `PersonInfo`.
+- The `service` package contains the `PersonInfoService` and `PersonAddressService` classes, which handle the integration with the respective services.
+- The `util` package contains the `ResponseTimeLogger` class, which can be used to log the response time of different components.
+- The `resources` folder includes the `application.properties` file for configuring application-specific properties.
+
+To introduce application loggers to capture the total response time, you can use a logging framework like Log4j2 or SLF4J along with appropriate log appenders and formatters. Here's an example `log4j2.xml` configuration file that includes loggers for different components:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.example.demo.controller" level="INFO"/>
+        <Logger name="com.example.demo.service" level="INFO"/>
+        <Logger name="com.example.demo.util.ResponseTimeLogger" level="INFO"/>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>
+```
+
+This configuration sets the log level to `INFO` for the `PersonController`, `PersonInfoService`, and `PersonAddressService` components, as well as the `ResponseTimeLogger`. You can modify the log level as per your requirements.
+
+Remember to include the necessary logging dependencies in your `pom.xml` file and place the `log4j2.xml` configuration file in the `resources` folder.
+
+Feel free to customize the code and configuration files according to your specific requirements. 
+
+Here's the implementation of the Java classes for the reactive Spring Boot web application:
+
+1. `DemoApplication.java` (Main class):
+```java
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+```
+
+2. `PersonController.java` (REST API Controller):
+```java
+package com.example.demo.controller;
+
+import com.example.demo.model.Person;
+import com.example.demo.model.PersonAddress;
+import com.example.demo.model.PersonInfo;
+import com.example.demo.service.PersonAddressService;
+import com.example.demo.service.PersonInfoService;
+import com.example.demo.util.ResponseTimeLogger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
+
+@RestController
+public class PersonController {
+    private final PersonInfoService personInfoService;
+    private final PersonAddressService personAddressService;
+
+    @Autowired
+    public PersonController(PersonInfoService personInfoService, PersonAddressService personAddressService) {
+        this.personInfoService = personInfoService;
+        this.personAddressService = personAddressService;
+    }
+
+    @GetMapping("/person/{personId}")
+    public Mono<Person> getPersonDetails(@PathVariable String personId) {
+        return Mono.zip(
+                personInfoService.getPersonInfo(personId).log("PersonInfoService"),
+                personAddressService.getPersonAddress(personId).log("PersonAddressService")
+            )
+            .map(tuple -> {
+                PersonInfo personInfo = tuple.getT1();
+                PersonAddress personAddress = tuple.getT2();
+                return new Person(personInfo, personAddress);
+            })
+            .doOnSuccess(person -> ResponseTimeLogger.log("Total response time: "));
+    }
+}
+```
+
+3. `Person.java` (Model class):
+```java
+package com.example.demo.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class Person {
+    private PersonInfo personInfo;
+    private PersonAddress personAddress;
+}
+```
+
+4. `PersonInfo.java` (Model class):
+```java
+package com.example.demo.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class PersonInfo {
+    private String name;
+    private int age;
+    // other fields
+}
+```
+
+5. `PersonAddress.java` (Model class):
+```java
+package com.example.demo.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class PersonAddress {
+    private String street;
+    private String city;
+    // other fields
+}
+```
+
+6. `PersonInfoService.java` (Service class):
+```java
+package com.example.demo.service;
+
+import com.example.demo.model.PersonInfo;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+
+@Service
+public class PersonInfoService {
+    public Mono<PersonInfo> getPersonInfo(String personId) {
+        // Implementation to fetch person info from a service
+        // Replace with your actual logic or service call
+        return Mono.just(new PersonInfo("John Doe", 30));
+    }
+}
+```
+
+7. `PersonAddressService.java` (Service class):
+```java
+package com.example.demo.service;
+
+import com.example.demo.model.PersonAddress;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+
+@Service
+public class PersonAddressService {
+    public Mono<PersonAddress> getPersonAddress(String personId) {
+        // Implementation to fetch person address from a service
+        // Replace with your actual logic or service call
+        return Mono.just(new PersonAddress("123 Main St", "City"));
+    }
+}
+```
+
+8. `ResponseTimeLogger.java` (Utility class for logging response time):
+```java
+package com.example.demo.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ResponseTimeLogger {
+    private static final Logger logger = LoggerFactory.getLogger(ResponseTimeLogger.class);
+
+    public static void log(String message) {
+        long responseTime = calculateResponseTime();
+        logger.info("{}{} ms", message, responseTime);
+    }
+
+    private static long calculateResponseTime() {
+        // Calculate the response time
+        // Replace with your actual logic to measure response time
+        return System.currentTimeMillis(); // Placeholder value
+    }
+}
+```
+
+Remember to configure your application properties (`application.properties`) as per your requirements, including the server port and any other necessary configurations.
+
+Make sure to include the required dependencies in your Maven `pom.xml` file, including `spring-boot-starter-webflux`, `spring-boot-starter-actuator`, and `lombok` (for reducing boilerplate code). Also, include any additional dependencies required by your specific services.
+
+Feel free to modify the code and add any necessary error handling or additional functionality based on your specific use case.
+
+To capture the time taken to integrate with the `PersonInfo` and `PersonAddress` services, you can modify the `PersonInfoService` and `PersonAddressService` classes to measure the elapsed time. Here's an updated implementation:
+
+1. `PersonInfoService.java` (Updated):
+```java
+package com.example.demo.service;
+
+import com.example.demo.model.PersonInfo;
+import com.example.demo.util.ResponseTimeLogger;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+
+@Service
+public class PersonInfoService {
+    public Mono<PersonInfo> getPersonInfo(String personId) {
+        long startTime = System.currentTimeMillis();
+
+        // Implementation to fetch person info from a service
+        // Replace with your actual logic or service call
+        Mono<PersonInfo> personInfoMono = Mono.just(new PersonInfo("John Doe", 30));
+
+        return personInfoMono.doOnSuccess(personInfo -> {
+            long elapsedTime = System.currentTimeMillis() - startTime;
+            ResponseTimeLogger.log("PersonInfo integration time: ", elapsedTime);
+        });
+    }
+}
+```
+
+2. `PersonAddressService.java` (Updated):
+```java
+package com.example.demo.service;
+
+import com.example.demo.model.PersonAddress;
+import com.example.demo.util.ResponseTimeLogger;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+
+@Service
+public class PersonAddressService {
+    public Mono<PersonAddress> getPersonAddress(String personId) {
+        long startTime = System.currentTimeMillis();
+
+        // Implementation to fetch person address from a service
+        // Replace with your actual logic or service call
+        Mono<PersonAddress> personAddressMono = Mono.just(new PersonAddress("123 Main St", "City"));
+
+        return personAddressMono.doOnSuccess(personAddress -> {
+            long elapsedTime = System.currentTimeMillis() - startTime;
+            ResponseTimeLogger.log("PersonAddress integration time: ", elapsedTime);
+        });
+    }
+}
+```
+
+3. `ResponseTimeLogger.java` (Updated):
+```java
+package com.example.demo.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ResponseTimeLogger {
+    private static final Logger logger = LoggerFactory.getLogger(ResponseTimeLogger.class);
+
+    public static void log(String message, long elapsedTime) {
+        logger.info("{}{} ms", message, elapsedTime);
+    }
+}
+```
+
+In the updated code:
+- We introduce a `startTime` variable in both the `PersonInfoService` and `PersonAddressService` classes to capture the current time before making the service calls.
+- After the service calls are completed, we calculate the elapsed time by subtracting the `startTime` from the current time.
+- The `ResponseTimeLogger` class is modified to accept the additional `elapsedTime` parameter and log the integration time along with the provided message.
+
+By logging the integration time in these classes, you will be able to capture the total time taken to integrate with the `PersonInfo` and `PersonAddress` services separately.
+
+Feel free to adjust the logging format or add more detailed information as per your requirements.
+
+
