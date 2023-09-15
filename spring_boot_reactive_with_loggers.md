@@ -375,3 +375,86 @@ By logging the integration time in these classes, you will be able to capture th
 Feel free to adjust the logging format or add more detailed information as per your requirements.
 
 
+**Implement a sequencial flow** say modify the application to call the `PersonInfo` service first, retrieve the address IDs, and then call the `PersonAddress` service based on those address IDs, you can make the following changes:
+
+1. `PersonController.java`:
+```java
+@RestController
+public class PersonController {
+    private final PersonInfoService personInfoService;
+    private final PersonAddressService personAddressService;
+
+    // ...
+
+    @GetMapping("/person/{personId}")
+    public Mono<Person> getPersonDetails(@PathVariable String personId) {
+        return personInfoService.getPersonInfo(personId)
+                .flatMap(personInfo -> personAddressService.getPersonAddresses(personInfo.getAddressIds())
+                        .map(personAddresses -> new Person(personInfo, personAddresses)))
+                .doOnSuccess(person -> ResponseTimeLogger.log("Total response time: "));
+    }
+}
+```
+
+2. `PersonInfo.java` (Updated with `addressIds` field):
+```java
+@Data
+@AllArgsConstructor
+public class PersonInfo {
+    private String name;
+    private int age;
+    private List<String> addressIds;
+}
+```
+
+3. `PersonInfoService.java` (Updated with new method `getPersonAddresses`):
+```java
+@Service
+public class PersonInfoService {
+    private final PersonAddressService personAddressService;
+
+    @Autowired
+    public PersonInfoService(PersonAddressService personAddressService) {
+        this.personAddressService = personAddressService;
+    }
+
+    public Mono<PersonInfo> getPersonInfo(String personId) {
+        // Implementation to fetch person info from a service
+        // Replace with your actual logic or service call
+        return Mono.just(new PersonInfo("John Doe", 30, Arrays.asList("addressId1", "addressId2")));
+    }
+
+    public Mono<List<PersonAddress>> getPersonAddresses(List<String> addressIds) {
+        return Flux.fromIterable(addressIds)
+                .flatMap(personAddressService::getPersonAddress)
+                .collectList();
+    }
+}
+```
+
+4. `PersonAddressService.java` (Updated with new method `getPersonAddress`):
+```java
+@Service
+public class PersonAddressService {
+    public Mono<PersonAddress> getPersonAddress(String addressId) {
+        // Implementation to fetch person address from a service
+        // Replace with your actual logic or service call
+        return Mono.just(new PersonAddress(addressId + " Street", addressId + " City"));
+    }
+}
+```
+
+In the updated code:
+- The `PersonInfo` class now includes a new field called `addressIds`, which represents the list of address IDs associated with the person.
+- The `PersonInfoService` class is updated with a new method called `getPersonAddresses`, which takes in a list of address IDs and calls the `getPersonAddress` method from the `PersonAddressService` class for each address ID using `Flux`.
+- In the `PersonController`, the `getPersonDetails` method is modified to call `personInfoService.getPersonInfo(personId)` to get the person information.
+- Then, `flatMap` is used to call `personAddressService.getPersonAddresses(personInfo.getAddressIds())` using the retrieved address IDs.
+- Finally, the `Person` object is constructed using the `PersonInfo` and `PersonAddress` data, and the response time is logged.
+
+With these changes, the application will call the `PersonInfo` service first, retrieve the address IDs, and then call the `PersonAddress` service for each address ID. The final response will contain the combined data from both services.
+
+Please note that this is a simplified example, and you may need to adapt the code to fit your specific use case and replace the placeholder implementation with your actual logic or service calls.
+
+
+
+
