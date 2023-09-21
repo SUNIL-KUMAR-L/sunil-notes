@@ -1,6 +1,382 @@
 ## SPRING  BOOT REACTIVE APPLICATION 
 
- Here's an example project structure for a reactive Spring Boot web application that connects to two services in parallel and collects their data to produce a final output. I'll also provide a Maven `pom.xml` file with the necessary dependencies.
+Creating an entire project from scratch with all the components. However,  an outline of the project structure, Here's an overview:
+
+### Project Structure:
+
+```
+project-root
+│
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com
+│   │   │       └── example
+│   │   │           ├── aspect
+│   │   │           │   └── ServiceExecutionTimeAspect.java
+│   │   │           ├── controller
+│   │   │           │   └── PersonController.java
+│   │   │           ├── model
+│   │   │           │   ├── Person.java
+│   │   │           │   └── Address.java
+│   │   │           ├── service
+│   │   │           │   ├── PersonService.java
+│   │   │           │   └── AddressService.java
+│   │   │           ├── util
+│   │   │           │   └── ReactiveLogger.java
+│   │   │           ├── Application.java
+│   │   │           └── WebFilterConfig.java
+│   │   └── resources
+│   │       └── application.properties
+│   └── test
+└── pom.xml
+```
+
+### Pom.xml (Maven Dependencies):
+
+```xml
+<!-- Add Spring Boot dependencies -->
+<!-- Add Reactor Core for reactive programming -->
+<!-- Add your other dependencies like logging, etc. -->
+
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
+    <!-- Add other dependencies as needed -->
+
+    <!-- Spring AOP dependency DON'T NEED AOP -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-aop</artifactId>
+    </dependency>
+</dependencies>
+```
+
+### `application.properties` (Config File):
+
+```properties
+# Configure your application properties here
+# Example: Database configuration, server port, etc.
+# DON'T NEED AOP
+# spring.aop.auto=true
+```
+
+### `ServiceExecutionTimeAspect.java` (Aspect for Service Execution Time):
+
+```java
+package com.example.aspect;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+//@Aspect
+//@Component
+# DON'T NEED AOP
+public class ServiceExecutionTimeAspect {
+
+    private final Logger logger = LoggerFactory.getLogger(ServiceExecutionTimeAspect.class);
+
+    private long startTime;
+
+    @Before("execution(* com.example.service.*.*(..))")
+    public void beforeServiceMethodExecution(JoinPoint joinPoint) {
+        startTime = System.currentTimeMillis();
+    }
+
+    @After("execution(* com.example.service.*.*(..))")
+    public void afterServiceMethodExecution(JoinPoint joinPoint) {
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        String methodName = joinPoint.getSignature().getName();
+        logger.info("Time taken by {} method: {} ms", methodName, elapsedTime);
+    }
+}
+```
+
+### `ReactiveLogger.java` (Utility for Reactive Logging):
+
+```java
+package com.example.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+public class ReactiveLogger {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReactiveLogger.class);
+
+    public static <T> Mono<T> logTime(Mono<T> mono, String methodName) {
+        return mono.doOnEach(signal -> {
+            if (signal.isOnNext()) {
+                logExecutionTime(methodName);
+            }
+        });
+    }
+
+    public static <T> Flux<T> logTime(Flux<T> flux, String methodName) {
+        return flux.doOnEach(signal -> {
+            if (signal.isOnNext()) {
+                logExecutionTime(methodName);
+            }
+        });
+    }
+
+    private static void logExecutionTime(String methodName) {
+        long startTime = ContextUtils.getStartTime();
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        logger.info("Time taken by {} method: {} ms", methodName, elapsedTime);
+    }
+}
+
+/*
+package com.example.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.Signal;
+import reactor.util.context.Context;
+
+public class ReactiveLogger {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReactiveLogger.class);
+
+    public static <T> Mono<T> logTime(Mono<T> mono, String methodName) {
+        return mono
+            .contextWrite(Context.of("startTime", System.currentTimeMillis()))
+            .doOnEach(signal -> {
+                if (signal.isOnNext()) {
+                    long startTime = signal.getContext().get("startTime");
+                    long endTime = System.currentTimeMillis();
+                    long elapsedTime = endTime - startTime;
+                    logger.info("Time taken by {} method: {} ms", methodName, elapsedTime);
+                }
+            });
+    }
+//TODO : implement same for flux 
+}
+*/
+
+```
+
+### `PersonController.java` (Reactive REST Controller):
+
+```java
+package com.example.controller;
+
+import com.example.model.Person;
+import com.example.model.Address;
+import com.example.service.PersonService;
+import com.example.service.AddressService;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
+
+@RestController
+@RequestMapping("/api/person")
+public class PersonController {
+    
+    private final PersonService personService;
+    private final AddressService addressService;
+
+    public PersonController(PersonService personService, AddressService addressService) {
+        this.personService = personService;
+        this.addressService = addressService;
+    }
+
+    @GetMapping("/{personId}")
+    public Mono<Person> getPersonWithAddresses(@PathVariable String personId) {
+        Mono<Person> personMono = personService.getPersonById(personId);
+        Flux<Address> addressFlux = addressService.getAddressesByPersonId(personId);
+
+        return personMono.zipWith(addressFlux.collectList(), (person, addresses) -> {
+            person.setAddresses(addresses);
+            return person;
+        });
+    }
+}
+```
+
+### `PersonService.java` and `AddressService.java` (Service Interfaces):
+
+```java
+package com.example.service;
+
+import reactor.core.publisher.Mono;
+import com.example.model.Person;
+
+public interface PersonService {
+    Mono<Person> getPersonById(String personId);
+}
+
+package com.example.service;
+
+import reactor.core.publisher.Flux;
+import com.example.model.Address;
+
+public interface AddressService {
+    Flux<Address> getAddressesByPersonId(String personId);
+}
+```
+
+### `PersonServiceImpl.java` and `AddressServiceImpl.java` (Service Implementations):
+
+```java
+package com.example.service;
+
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import com.example.model.Person;
+import com.example.util.ReactiveLogger;
+
+@Service
+public class PersonServiceImpl implements PersonService {
+
+    @Override
+    public Mono<Person> getPersonById(String personId) {
+        // Implement fetching person data by personId
+        return ReactiveLogger.logTime(yourServiceOrRepositoryMethod(personId), "getPersonById");
+    }
+}
+
+package com.example.service;
+
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import com.example.model.Address;
+import com.example.util.ReactiveLogger;
+
+@Service
+public class AddressServiceImpl implements AddressService {
+
+    @Override
+    public Flux<Address> getAddressesByPersonId(String personId) {
+        // Implement fetching addresses by personId
+        return ReactiveLogger.logTime(yourServiceOrRepositoryMethod(personId), "getAddressesByPersonId");
+    }
+}
+```
+
+### `Application.java` (Spring Boot Application Entry Point):
+
+```java
+package com.example;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+### `WebFilterConfig.java` (Web Filter Configuration for Response Time):
+
+```java
+package com.example;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+
+@Configuration
+public class WebFilterConfig {
+
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public WebFilter responseTimeWebFilter() {
+        return (exchange, chain) -> {
+            long startTime = System.currentTimeMillis();
+
+            return chain.filter(exchange).then(Mono.fromRunnable(() -> {
+                long endTime = System.currentTimeMillis();
+                long elapsedTime = endTime - startTime;
+                System.out.println("Total time taken for request: " + elapsedTime + " ms");
+            }));
+        };
+    }
+}
+
+/*
+package com.example;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
+
+@Configuration
+public class WebFilterConfig {
+
+    @Bean
+    public WebFilter responseTimeWebFilter() {
+        return (exchange, chain) -> {
+            long startTime = System.currentTimeMillis();
+
+            return chain.filter(exchange).doAfterTerminate(() -> {
+                long endTime = System.currentTimeMillis();
+                long elapsedTime = endTime - startTime;
+                System.out.println("Total time taken for request: " + elapsedTime + " ms");
+            });
+        };
+    }
+}
+*/
+
+/**
+
+what is the difference of WebFilterConfig class responseTimeWebFilter() implementation difference   now, it is chain.filter(exchange).then(Mono.fromRunnable(...) where-as previous implementation of chain.filter(exchange).doAfterTerminate(...).
+
+Notes : The difference between the two implementations lies in when the time measurement and logging occur in the request-response lifecycle:
+
+The difference between the two implementations lies in when the time measurement and logging occur in the request-response lifecycle:
+
+1. In the original implementation using `chain.filter(exchange).doAfterTerminate(...)`, the time measurement and logging happen after the response has been sent to the client. This approach logs the time taken for the entire request-response cycle, including asynchronous operations, after the response is complete.
+
+2. In the updated implementation using `chain.filter(exchange).then(Mono.fromRunnable(...))`, the time measurement and logging also occur after the response has been sent, but they are wrapped in a `Mono.fromRunnable`. This ensures that the logging operation itself is non-blocking and does not affect the response. It still captures the time taken for the entire request-response cycle, similar to the original implementation.
+
+Both approaches provide similar functionality in terms of measuring and logging the total time taken for the request-response cycle. The key difference is in the way they handle the logging operation. The use of `Mono.fromRunnable` in the updated implementation is a more idiomatic and reactive way to perform such post-processing tasks, ensuring they don't block the event loop and align well with the reactive nature of the application.
+
+*/
+
+```
+
+### Test Implementations:
+
+You can create test classes for your controller and service methods using frameworks like JUnit or TestNG. These tests would ensure that your components work as expected. The specific test implementations would depend on your actual service and controller logic.
+
+Please replace `yourServiceOrRepositoryMethod` in the service implementations with the actual code to fetch data. Also, make sure to configure your database and other necessary components according to your project requirements in the application.properties file.
+
+This outline should help you set up a Spring Boot project with the requested components and configurations. You can expand upon this foundation to implement your specific logic and requirements.
+
+
+
+_________________
+_________________
+_________________
+
+Here's an example project structure for a reactive Spring Boot web application that connects to two services in parallel and collects their data to produce a final output. I'll also provide a Maven `pom.xml` file with the necessary dependencies.
 
 Project Structure:
 ```
