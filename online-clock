@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<!--
+Test this html -- online clock @ https://playcode.io/
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Round Dial Clock with Digital Time and Date</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .clock-container {
+            text-align: center;
+        }
+        .clock {
+            width: 300px;
+            height: 300px;
+            border: 10px solid #333;
+            border-radius: 50%;
+            position: relative;
+            background-color: #fff;
+            margin-bottom: 20px;
+        }
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: 50% 100%;
+            background-color: #333;
+        }
+        .hour {
+            width: 6px;
+            height: 30%;
+            transform: translateX(-50%);
+        }
+        .minute {
+            width: 4px;
+            height: 40%;
+            transform: translateX(-50%);
+        }
+        .second {
+            width: 2px;
+            height: 45%;
+            background-color: #f00;
+            transform: translateX(-50%);
+        }
+        .center {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #333;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .hour-digit {
+            position: absolute;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .digital-time {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .date {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-container">
+        <div class="clock">
+            <div class="hand hour"></div>
+            <div class="hand minute"></div>
+            <div class="hand second"></div>
+            <div class="center"></div>
+        </div>
+        <div class="digital-time" id="digital-time"></div>
+        <div class="date" id="date"></div>
+    </div>
+
+    <script>
+        function createHourDigits() {
+            const clock = document.querySelector('.clock');
+            for (let i = 1; i <= 12; i++) {
+                const digit = document.createElement('div');
+                digit.className = 'hour-digit';
+                const angle = (i - 3) * 30 * Math.PI / 180;
+                const x = 135 + 120 * Math.cos(angle);
+                const y = 150 + 120 * Math.sin(angle);
+                digit.style.left = `${x}px`;
+                digit.style.top = `${y}px`;
+                digit.textContent = i;
+                clock.appendChild(digit);
+            }
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            const hourDeg = (hours % 12 + minutes / 60) * 30;
+            const minuteDeg = (minutes + seconds / 60) * 6;
+            const secondDeg = seconds * 6;
+
+            document.querySelector('.hour').style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
+            document.querySelector('.minute').style.transform = `translateX(-50%) rotate(${minuteDeg}deg)`;
+            document.querySelector('.second').style.transform = `translateX(-50%) rotate(${secondDeg}deg)`;
+
+            // Update digital time display
+            const digitalTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('digital-time').textContent = digitalTime;
+
+            // Update date display
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date').textContent = now.toLocaleDateString(undefined, options);
+        }
+
+        createHourDigits();
+        setInterval(updateClock, 1000);
+        updateClock(); // Initial call to avoid delay
+    </script>
+</body>
+</html>
