@@ -18,6 +18,7 @@ https://ollama.com/
 
 # open webui (local open source web GPT UI interface)
 https://openwebui.com/
+<br/>
 https://github.com/open-webui/open-webui
 
 # microsoft gpt
