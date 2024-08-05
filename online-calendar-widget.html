@@ -50,7 +50,7 @@ try this out @ https://playcode.io/
             const selectedDate = document.getElementById('selectedDate');
             const date = new Date(datePicker.value);
             date.setDate(date.getDate() + 1); // Adjust the date by adding one day
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const formattedDate = date.toLocaleDateString('en-US', options);
             selectedDate.textContent = `${formattedDate}`;
         }
