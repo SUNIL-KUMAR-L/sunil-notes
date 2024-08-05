@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<!--
+try this out @ https://playcode.io/
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .calculator {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .calculator__history {
+            font-size: 1em;
+            margin-bottom: 10px;
+            text-align: right;
+            color: #888;
+        }
+
+        .calculator__display {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-align: right;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #e0e0e0;
+        }
+
+        .calculator__keys {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 20px;
+            font-size: 1.5em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .digit {
+            background-color: #f9f9f9;
+        }
+
+        .digit:active {
+            background-color: #ddd;
+        }
+
+        .operator {
+            background-color: #ffcc00;
+        }
+
+        .operator:active {
+            background-color: #e6b800;
+        }
+
+        .key--equal {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .key--equal:active {
+            background-color: #45a049;
+        }
+
+        .key--clear {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .key--clear:active {
+            background-color: #e53935;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="calculator__history"></div>
+        <input type="text" class="calculator__display" value="0">
+        <div class="calculator__keys">
+            <button class="digit">7</button>
+            <button class="digit">8</button>
+            <button class="digit">9</button>
+            <button class="operator" data-action="divide">÷</button>
+            <button class="digit">4</button>
+            <button class="digit">5</button>
+            <button class="digit">6</button>
+            <button class="operator" data-action="multiply">×</button>
+            <button class="digit">1</button>
+            <button class="digit">2</button>
+            <button class="digit">3</button>
+            <button class="operator" data-action="subtract">-</button>
+            <button class="digit">0</button>
+            <button class="digit" data-action="decimal">.</button>
+            <button class="key--clear" data-action="clear">AC</button>
+            <button class="operator" data-action="add">+</button>
+            <button class="key--equal" data-action="calculate">=</button>
+        </div>
+    </div>
+    <script>
+        const calculator = document.querySelector('.calculator');
+        const display = calculator.querySelector('.calculator__display');
+        const history = calculator.querySelector('.calculator__history');
+        const keys = calculator.querySelector('.calculator__keys');
+
+        keys.addEventListener('click', e => {
+            if (e.target.matches('button')) {
+                const key = e.target;
+                const action = key.dataset.action;
+                const keyContent = key.textContent;
+                const displayedNum = display.value;
+                const previousKeyType = calculator.dataset.previousKeyType;
+
+                if (!action) {
+                    if (displayedNum === '0' || previousKeyType === 'operator') {
+                        display.value = keyContent;
+                    } else {
+                        display.value = displayedNum + keyContent;
+                    }
+                    calculator.dataset.previousKeyType = 'number';
+                }
+
+                if (action === 'add' || action === 'subtract' || action === 'multiply' || action === 'divide') {
+                    calculator.dataset.previousKeyType = 'operator';
+                    calculator.dataset.firstValue = displayedNum;
+                    calculator.dataset.operator = action;
+                }
+
+                if (action === 'decimal') {
+                    if (!displayedNum.includes('.')) {
+                        display.value = displayedNum + '.';
+                    }
+                    calculator.dataset.previousKeyType = 'decimal';
+                }
+
+                if (action === 'clear') {
+                    display.value = '0';
+                    history.textContent = '';
+                    calculator.dataset.previousKeyType = '';
+                    calculator.dataset.firstValue = '';
+                    calculator.dataset.operator = '';
+                }
+
+                if (action === 'calculate') {
+                    const firstValue = calculator.dataset.firstValue;
+                    const operator = calculator.dataset.operator;
+                    const secondValue = displayedNum;
+
+                    if (firstValue && operator) {
+                        const result = calculate(firstValue, operator, secondValue);
+                        display.value = result;
+                        history.textContent = `${firstValue} ${operatorSymbol(operator)} ${secondValue} = ${result}\n`;
+                        calculator.dataset.previousKeyType = 'calculate';
+                    }
+                }
+            }
+        });
+
+        display.addEventListener('blur', () => {
+            calculateAndDisplay();
+        });
+
+        display.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                calculateAndDisplay();
+            }
+        });
+
+        function calculateAndDisplay() {
+            const expression = display.value;
+            try {
+                const result = eval(expression.replace(/×/g, '*').replace(/÷/g, '/'));
+                display.value = result;
+                history.textContent = `${expression} = ${result}\n`;
+            } catch (error) {
+                display.value = 'Error';
+            }
+        }
+
+        function calculate(first, operator, second) {
+            first = parseFloat(first);
+            second = parseFloat(second);
+
+            if (operator === 'add') return first + second;
+            if (operator === 'subtract') return first - second;
+            if (operator === 'multiply') return first * second;
+            if (operator === 'divide') return first / second;
+        }
+
+        function operatorSymbol(operator) {
+            if (operator === 'add') return '+';
+            if (operator === 'subtract') return '-';
+            if (operator === 'multiply') return '×';
+            if (operator === 'divide') return '÷';
+        }
+    </script>
+</body>
+</html>
