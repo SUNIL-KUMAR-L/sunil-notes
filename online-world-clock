@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<!--
+Test this at https://playcode.io/
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Clock</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .clock {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .time {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .date {
+            color: #666;
+        }
+        #addZone {
+            margin-top: 20px;
+        }
+        input, button {
+            padding: 5px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>World Clock</h1>
+    <div id="clocks"></div>
+    <div id="addZone">
+        <input type="text" id="newZone" placeholder="Enter timezone (e.g., America/New_York)">
+        <button onclick="addTimeZone()">Add Time Zone</button>
+    </div>
+
+    <script>
+        const clocksDiv = document.getElementById('clocks');
+        const timeZones = ['UTC'];
+
+        function createClockElement(zone) {
+            const clockDiv = document.createElement('div');
+            clockDiv.className = 'clock';
+            clockDiv.innerHTML = `
+                <div>${zone}</div>
+                <div class="time"></div>
+                <div class="date"></div>
+            `;
+            clocksDiv.appendChild(clockDiv);
+        }
+
+        function updateClocks() {
+            const clocks = document.getElementsByClassName('clock');
+            for (let i = 0; i < clocks.length; i++) {
+                const zone = timeZones[i];
+                const now = new Date().toLocaleString('en-US', { timeZone: zone });
+                const dateObj = new Date(now);
+                
+                const timeStr = dateObj.toLocaleTimeString('en-US');
+                const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                
+                clocks[i].querySelector('.time').textContent = timeStr;
+                clocks[i].querySelector('.date').textContent = `${dateStr} (${zone})`;
+            }
+        }
+
+        function addTimeZone() {
+            const newZone = document.getElementById('newZone').value.trim();
+            if (newZone && !timeZones.includes(newZone)) {
+                try {
+                    new Date().toLocaleString('en-US', { timeZone: newZone });
+                    timeZones.push(newZone);
+                    createClockElement(newZone);
+                    document.getElementById('newZone').value = '';
+                } catch (error) {
+                    alert('Invalid time zone. Please try again.');
+                }
+            }
+        }
+
+        // Initialize with UTC
+        createClockElement('UTC');
+
+        var INDIA_TZ = 'Asia/Kolkata';
+        timeZones.push(INDIA_TZ);
+        createClockElement(INDIA_TZ);
+        
+        var USA_NY_TZ = 'America/New_York';
+        timeZones.push(USA_NY_TZ);
+        createClockElement(USA_NY_TZ);
+        
+        var USA_CENTRAL_TZ = 'America/Chicago';
+        timeZones.push(USA_CENTRAL_TZ);
+        createClockElement(USA_CENTRAL_TZ);
+        
+        var EUROPE_LONDON_TZ = 'Europe/London';
+        timeZones.push(EUROPE_LONDON_TZ);
+        createClockElement(EUROPE_LONDON_TZ);
+        
+        var ASIA_TOKYO_TZ = 'Asia/Tokyo';
+        timeZones.push(ASIA_TOKYO_TZ);
+        createClockElement(EUROPE_LONDON_TZ);
+
+
+        // Update clocks every second
+        setInterval(updateClocks, 1000);
+    </script>
+</body>
+</html> 
