@@ -1,0 +1,43 @@
+Sample Data
+Persons File (persons.csv)
+
+person_id,name,age
+1,John Doe,30
+2,Jane Smith,25
+3,Emily Davis,35
+
+Addresses File (addresses.csv)
+
+address_id,person_id,street,city,state,zip
+1,1,123 Main St,Springfield,IL,62701
+2,2,456 Elm St,Metropolis,NY,10001
+3,3,789 Oak St,Gotham,CA,90210
+
+Neo4j Insert Script
+To convert this data into a Neo4j insert script, you can use the Cypher query language. Here’s an example script that creates nodes for persons and addresses, and then creates relationships between them:
+
+// Create Person nodes
+CREATE (p1:Person {person_id: 1, name: 'John Doe', age: 30}),
+       (p2:Person {person_id: 2, name: 'Jane Smith', age: 25}),
+       (p3:Person {person_id: 3, name: 'Emily Davis', age: 35});
+
+// Create Address nodes
+CREATE (a1:Address {address_id: 1, street: '123 Main St', city: 'Springfield', state: 'IL', zip: '62701'}),
+       (a2:Address {address_id: 2, street: '456 Elm St', city: 'Metropolis', state: 'NY', zip: '10001'}),
+       (a3:Address {address_id: 3, street: '789 Oak St', city: 'Gotham', state: 'CA', zip: '90210'});
+
+// Create relationships between Persons and Addresses
+MATCH (p1:Person {person_id: 1}), (a1:Address {address_id: 1})
+CREATE (p1)-[:LIVES_AT]->(a1);
+
+MATCH (p2:Person {person_id: 2}), (a2:Address {address_id: 2})
+CREATE (p2)-[:LIVES_AT]->(a2);
+
+MATCH (p3:Person {person_id: 3}), (a3:Address {address_id: 3})
+CREATE (p3)-[:LIVES_AT]->(a3);
+
+Explanation
+Creating Person Nodes: The CREATE clause is used to create nodes for each person with their respective properties.
+Creating Address Nodes: Similarly, the CREATE clause is used to create nodes for each address.
+Creating Relationships: The MATCH clause is used to find the person and address nodes, and the CREATE clause is used to create relationships between them.
+This script will create a graph in Neo4j where each person node is connected to their respective address node with a LIVES_AT relationship.
