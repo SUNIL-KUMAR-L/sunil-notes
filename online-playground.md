@@ -21,3 +21,6 @@ https://claude.ai/
 
 # Meta ai
 https://www.meta.ai/
+
+# Google Gemini
+https://gemini.google.com/app
