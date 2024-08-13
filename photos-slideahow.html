@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Photo Slideshow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .slideshow-container {
+            margin-bottom: 20px;
+            position: relative;
+            width: 600px;
+            height: 400px;
+            background-color: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #slideshow-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .controls {
+            margin-top: 10px;
+        }
+
+        button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .add-photo-container {
+            margin-top: 20px;
+        }
+
+        #photo-input {
+            margin-right: 10px;
+        }
+
+        .photo-list {
+            margin-top: 20px;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        .photo-list a {
+            display: block;
+            margin-bottom: 5px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .photo-list a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enhanced Photo Slideshow</h1>
+        <div class="slideshow-container">
+            <img id="slideshow-image" src="" alt="Slideshow Image">
+        </div>
+        <div class="controls">
+            <button id="prev-button">Previous</button>
+            <button id="play-pause-button">Pause</button>
+            <button id="next-button">Next</button>
+        </div>
+        <div class="add-photo-container">
+            <input type="file" id="photo-input" accept="image/*">
+            <button id="add-photo-button">Add Photo</button>
+        </div>
+        <div class="photo-list" id="photo-list"></div>
+    </div>
+
+    <script>
+        const slideshowImage = document.getElementById('slideshow-image');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+        const photoInput = document.getElementById('photo-input');
+        const addPhotoButton = document.getElementById('add-photo-button');
+        const playPauseButton = document.getElementById('play-pause-button');
+        const photoList = document.getElementById('photo-list');
+
+        let photos = [
+          
+/*
+            // set up pre existing images
+           'https://example.com/photo1.jpg',
+           'https://example.com/photo2.jpg',
+           'https://example.com/photo3.jpg'
+		       // enhance to add image url to be added to photo list
+*/		
+        ];
+
+        let currentPhotoIndex = 0;
+        let slideshowInterval;
+        let isPlaying = true;
+
+        function updatePhoto() {
+            slideshowImage.src = photos[currentPhotoIndex];
+        }
+
+        function showNextPhoto() {
+            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+            updatePhoto();
+        }
+
+        function showPrevPhoto() {
+            currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+            updatePhoto();
+        }
+
+        function addNewPhoto() {
+            const file = photoInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    photos.push(e.target.result);
+                    currentPhotoIndex = photos.length - 1;
+                    updatePhoto();
+                    updatePhotoList();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function togglePlayPause() {
+            if (isPlaying) {
+                clearInterval(slideshowInterval);
+                playPauseButton.textContent = 'Play';
+            } else {
+                startSlideshow();
+                playPauseButton.textContent = 'Pause';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        function startSlideshow() {
+            slideshowInterval = setInterval(showNextPhoto, 3000); // Change photo every 3 seconds
+        }
+
+        function updatePhotoList() {
+            photoList.innerHTML = '';
+            photos.forEach((photo, index) => {
+                const link = document.createElement('a');
+                link.href = '#';
+                link.textContent = `Photo ${index + 1}`;
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentPhotoIndex = index;
+                    updatePhoto();
+                    if (isPlaying) {
+                        clearInterval(slideshowInterval);
+                        startSlideshow();
+                    }
+                });
+                photoList.appendChild(link);
+            });
+        }
+
+        prevButton.addEventListener('click', () => {
+            showPrevPhoto();
+            if (isPlaying) {
+                clearInterval(slideshowInterval);
+                startSlideshow();
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            showNextPhoto();
+            if (isPlaying) {
+                clearInterval(slideshowInterval);
+                startSlideshow();
+            }
+        });
+
+        addPhotoButton.addEventListener('click', addNewPhoto);
+        playPauseButton.addEventListener('click', togglePlayPause);
+
+        updatePhoto();
+        updatePhotoList();
+        startSlideshow();
+    </script>
+</body>
+</html>
