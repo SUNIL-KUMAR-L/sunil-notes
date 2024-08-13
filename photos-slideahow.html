@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Photo Slideshow</title>
+    <title>Enhanced Photo Slideshow with URL Input</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,6 +22,8 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
         }
 
         .slideshow-container {
@@ -33,6 +35,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         #slideshow-image {
@@ -53,9 +57,16 @@
 
         .add-photo-container {
             margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
-        #photo-input {
+        .add-photo-container > div {
+            margin: 10px;
+        }
+
+        #photo-input, #url-input {
             margin-right: 10px;
         }
 
@@ -92,8 +103,15 @@
             <button id="next-button">Next</button>
         </div>
         <div class="add-photo-container">
-            <input type="file" id="photo-input" accept="image/*">
-            <button id="add-photo-button">Add Photo</button>
+            <div>
+                <input type="file" id="photo-input" accept="image/*">
+                <button id="add-photo-button">Add Photo File</button>
+            </div>
+	    <br/>
+            <div>
+                <input type="text" id="url-input" placeholder="Enter image URL">
+                <button id="add-url-button">Add Photo URL</button>
+            </div>
         </div>
         <div class="photo-list" id="photo-list"></div>
     </div>
@@ -103,19 +121,18 @@
         const prevButton = document.getElementById('prev-button');
         const nextButton = document.getElementById('next-button');
         const photoInput = document.getElementById('photo-input');
+        const urlInput = document.getElementById('url-input');
         const addPhotoButton = document.getElementById('add-photo-button');
+        const addUrlButton = document.getElementById('add-url-button');
         const playPauseButton = document.getElementById('play-pause-button');
         const photoList = document.getElementById('photo-list');
 
         let photos = [
-          
-/*
-            // set up pre existing images
-           'https://example.com/photo1.jpg',
-           'https://example.com/photo2.jpg',
-           'https://example.com/photo3.jpg'
-		       // enhance to add image url to be added to photo list
-*/		
+/*           
+	    'https://example.com/photo1.jpg',
+            'https://example.com/photo2.jpg',
+            'https://example.com/photo3.jpg'
+*/			
         ];
 
         let currentPhotoIndex = 0;
@@ -147,6 +164,17 @@
                     updatePhotoList();
                 };
                 reader.readAsDataURL(file);
+            }
+        }
+
+        function addPhotoUrl() {
+            const url = urlInput.value.trim();
+            if (url) {
+                photos.push(url);
+                currentPhotoIndex = photos.length - 1;
+                updatePhoto();
+                updatePhotoList();
+                urlInput.value = '';
             }
         }
 
@@ -201,6 +229,7 @@
         });
 
         addPhotoButton.addEventListener('click', addNewPhoto);
+        addUrlButton.addEventListener('click', addPhotoUrl);
         playPauseButton.addEventListener('click', togglePlayPause);
 
         updatePhoto();
