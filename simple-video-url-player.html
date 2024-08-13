@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Player</title>
+</head>
+<body>
+    <input type="text" id="videoUrlInput" placeholder="Enter video URL">
+    <button onclick="playVideo()">Play Video</button>
+    <video id="videoPlayer" controls width="640" height="360"></video>
+	<div>
+		examples of sample video URLS
+		<br/>
+		1. <a href="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" onclick="copyHref(event)"> BigBuckBunny </a>
+		<br/>
+		2. <a href="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" onclick="copyHref(event)"> ElephantsDream </a>
+		<br/>
+		3. <a href="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" onclick="copyHref(event)"> ForBiggerBlazes </a>
+		<br/>
+		4. <a href="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" onclick="copyHref(event)"> ForBiggerEscapes </a>
+		<br/>
+		5. <a href="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" onclick="copyHref(event)"> ForBiggerFun </a>
+		<br/>		
+		more video links at :  https://gist.github.com/jsturgis/3b19447b304616f18657
+	</div>
+
+  <script>
+    function playVideo() {
+		  const videoUrlInput = document.getElementById("videoUrlInput");
+		  const videoPlayer = document.getElementById("videoPlayer");
+		  const loadingIndicator = document.createElement("div");
+		  loadingIndicator.textContent = "Loading...";
+
+		  const videoUrl = videoUrlInput.value;
+		  videoPlayer.innerHTML = ""; // Clear previous content
+		  videoPlayer.appendChild(loadingIndicator);
+
+		  videoPlayer.src = videoUrl;
+		  videoPlayer.addEventListener('loadedmetadata', () => {
+			loadingIndicator.remove();
+		  });
+		  videoPlayer.addEventListener('error', () => {
+			loadingIndicator.textContent = "Error loading video";
+		  });
+		  videoPlayer.load();
+		  videoPlayer.play();
+	}
+	
+	function copyHref(event) {
+	    event.preventDefault(); // Prevent default navigation
+      const hrefInput = document.getElementById("videoUrlInput");
+      hrefInput.value = event.target.href;
+	    playVideo();
+    }
+  </script>
+</body>
+</html>
