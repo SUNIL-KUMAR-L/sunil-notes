@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO List Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .todo { display: flex; align-items: center; margin-bottom: 10px; }
+        .todo input[type="checkbox"] { margin-right: 10px; }
+        .todo button { margin-left: auto; }
+    </style>
+</head>
+<body>
+<h1>TODO List</h1>
+<form id="todo-form">
+    <input type="text" id="todo-title" placeholder="Enter a new TODO" required>
+    <button type="submit">Add TODO</button>
+</form>
+<ul id="todo-list"></ul>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const todoForm = document.getElementById('todo-form');
+        const todoList = document.getElementById('todo-list');
+
+        const todos = [];
+
+        const renderTodos = () => {
+            todoList.innerHTML = '';
+            todos.forEach((todo, index) => {
+                const li = document.createElement('li');
+                li.className = 'todo';
+                li.innerHTML = `
+                    <input type="checkbox" ${todo.completed ? 'checked' : ''} data-index="${index}">
+                    <span>${todo.title}</span>
+                    <button data-index="${index}">Delete</button>
+                `;
+                todoList.appendChild(li);
+            });
+        };
+
+        todoForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('todo-title').value;
+            todos.push({ title, completed: false });
+            document.getElementById('todo-title').value = '';
+            renderTodos();
+        });
+
+        todoList.addEventListener('change', (e) => {
+            if (e.target.type === 'checkbox') {
+                const index = e.target.getAttribute('data-index');
+                todos[index].completed = e.target.checked;
+                renderTodos();
+            }
+        });
+
+        todoList.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const index = e.target.getAttribute('data-index');
+                todos.splice(index, 1);
+                renderTodos();
+            }
+        });
+
+        renderTodos();
+    });
+</script>
+</body>
+</html>
