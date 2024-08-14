@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .note {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            background-color: yellow;
+            padding: 10px;
+            border: 1px solid #ccc;
+            width: 200px;
+            position: absolute;
+            cursor: move;
+        }
+        .note button { margin-left: auto; }
+        .note img { max-width: 100px; max-height: 100px; margin-left: 10px; }
+        #note-text { border: 1px solid #ccc; padding: 10px; min-height: 100px; }
+        #note-container { position: relative; width: 100%; height: 80vh; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+<h1>Notes Management</h1>
+<form id="note-form">
+    <div id="note-text" contenteditable="true" placeholder="Enter your note"></div>
+    <br>
+    <button type="button" onclick="formatText('bold')">Bold</button>
+    <button type="button" onclick="formatText('italic')">Italic</button>
+    <button type="button" onclick="formatText('underline')">Underline</button>
+    <br>
+    <input type="file" id="note-image" accept="image/*">
+    <br>
+    <button type="submit">Add Note</button>
+</form>
+<div id="note-container"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const noteForm = document.getElementById('note-form');
+        const noteContainer = document.getElementById('note-container');
+        const noteText = document.getElementById('note-text');
+        const noteImage = document.getElementById('note-image');
+
+        const notes = JSON.parse(localStorage.getItem('notes')) || [];
+
+        const renderNotes = () => {
+            noteContainer.innerHTML = '';
+            let top = 0;
+            let left = 0;
+            const noteWidth = 220; // note width + margin
+            const noteHeight = 120; // note height + margin
+
+            notes.forEach((note, index) => {
+                const div = document.createElement('div');
+                div.className = 'note';
+                div.innerHTML = `
+                    <span>${note.text}</span>
+                    ${note.image ? `<img src="${note.image}" alt="Note Image">` : ''}
+                    <button data-index="${index}" onclick="editNote(${index})">Edit</button>
+                    <button data-index="${index}" onclick="deleteNote(${index})">Delete</button>
+                `;
+                div.style.top = `${top}px`;
+                div.style.left = `${left}px`;
+                div.setAttribute('draggable', true);
+                div.addEventListener('dragstart', dragStart);
+                div.addEventListener('dragend', dragEnd);
+                noteContainer.appendChild(div);
+
+                left += noteWidth;
+                if (left + noteWidth > noteContainer.clientWidth) {
+                    left = 0;
+                    top += noteHeight;
+                }
+            });
+        };
+
+        noteForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = noteText.innerHTML;
+            const image = noteImage.files[0] ? URL.createObjectURL(noteImage.files[0]) : null;
+            notes.push({ text, image, top: '0px', left: '0px' });
+            localStorage.setItem('notes', JSON.stringify(notes));
+            noteText.innerHTML = '';
+            noteImage.value = '';
+            renderNotes();
+        });
+
+        window.formatText = (command) => {
+            document.execCommand(command, false, null);
+        };
+
+        window.editNote = (index) => {
+            const note = notes[index];
+            noteText.innerHTML = note.text;
+            noteImage.value = '';
+            notes.splice(index, 1);
+            localStorage.setItem('notes', JSON.stringify(notes));
+            renderNotes();
+        };
+
+        window.deleteNote = (index) => {
+            notes.splice(index, 1);
+            localStorage.setItem('notes', JSON.stringify(notes));
+            renderNotes();
+        };
+
+        const dragStart = (e) => {
+            e.dataTransfer.setData('text/plain', e.target.dataset.index);
+        };
+
+        const dragEnd = (e) => {
+            const index = e.dataTransfer.getData('text/plain');
+            const note = notes[index];
+            note.top = `${e.clientY - e.target.offsetHeight / 2}px`;
+            note.left = `${e.clientX - e.target.offsetWidth / 2}px`;
+            localStorage.setItem('notes', JSON.stringify(notes));
+            renderNotes();
+        };
+
+        renderNotes();
+    });
+</script>
+</body>
+</html>
