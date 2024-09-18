@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Product Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .search-filter {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        #productList {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .category {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .product-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .product {
+            width: calc(33.33% - 20px);
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .product img {
+            max-width: 100%;
+            height: auto;
+        }
+        @media (max-width: 768px) {
+            .product {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="search-filter">
+        <input type="text" id="searchInput" placeholder="Search products...">
+        <select id="categoryFilter">
+            <option value="">All Categories</option>
+        </select>
+    </div>
+    <div id="productList"></div>
+
+    <script>
+        let products = [];
+        let categories = [];
+
+        async function fetchProducts() {
+            // Mock product data
+            products = [
+                { id: 1, name: "Smartphone", description: "Latest model with high-res camera", price: 699.99, imageUrl: "https://example.com/smartphone.jpg", category: "Electronics" },
+                { id: 2, name: "Laptop", description: "Powerful laptop for work and gaming", price: 1299.99, imageUrl: "https://example.com/laptop.jpg", category: "Electronics" },
+                { id: 3, name: "Running Shoes", description: "Comfortable shoes for jogging", price: 89.99, imageUrl: "https://example.com/shoes.jpg", category: "Sports" },
+                { id: 4, name: "Coffee Maker", description: "Automatic coffee machine", price: 79.99, imageUrl: "https://example.com/coffeemaker.jpg", category: "Home Appliances" },
+                { id: 5, name: "Headphones", description: "Noise-cancelling wireless headphones", price: 199.99, imageUrl: "https://example.com/headphones.jpg", category: "Electronics" },
+                { id: 6, name: "Yoga Mat", description: "Non-slip exercise mat", price: 29.99, imageUrl: "https://example.com/yogamat.jpg", category: "Sports" },
+                { id: 7, name: "Blender", description: "High-speed blender for smoothies", price: 69.99, imageUrl: "https://example.com/blender.jpg", category: "Home Appliances" },
+                { id: 8, name: "Smart Watch", description: "Fitness tracker and smartwatch", price: 249.99, imageUrl: "https://example.com/smartwatch.jpg", category: "Electronics" },
+                { id: 9, name: "Dumbbell Set", description: "Adjustable weight dumbbells", price: 149.99, imageUrl: "https://example.com/dumbbells.jpg", category: "Sports" }
+            ];
+
+            categories = [...new Set(products.map(p => p.category))];
+            populateCategoryFilter();
+            renderProducts();
+        }
+
+        function populateCategoryFilter() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            categoryFilter.innerHTML = '<option value="">All Categories</option>';
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
+            });
+        }
+
+        function renderProducts() {
+            const productList = document.getElementById('productList');
+            productList.innerHTML = '';
+
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedCategory = document.getElementById('categoryFilter').value;
+
+            const filteredProducts = products.filter(product => 
+                (product.name.toLowerCase().includes(searchTerm) || 
+                 product.description.toLowerCase().includes(searchTerm)) &&
+                (selectedCategory === '' || product.category === selectedCategory)
+            );
+
+            const groupedProducts = groupByCategory(filteredProducts);
+
+            for (const [category, categoryProducts] of Object.entries(groupedProducts)) {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                categoryDiv.innerHTML = `<h2>${category}</h2>`;
+
+                const productRow = document.createElement('div');
+                productRow.className = 'product-row';
+
+                categoryProducts.forEach(product => {
+                    const productDiv = document.createElement('div');
+                    productDiv.className = 'product';
+                    productDiv.innerHTML = `
+                        <img src="${product.imageUrl}" alt="${product.name}">
+                        <h3>${product.name}</h3>
+                        <p>${product.description}</p>
+                        <p>Price: $${product.price.toFixed(2)}</p>
+                    `;
+                    productRow.appendChild(productDiv);
+                });
+
+                categoryDiv.appendChild(productRow);
+                productList.appendChild(categoryDiv);
+            }
+        }
+
+        function groupByCategory(products) {
+            return products.reduce((acc, product) => {
+                (acc[product.category] = acc[product.category] || []).push(product);
+                return acc;
+            }, {});
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderProducts);
+        document.getElementById('categoryFilter').addEventListener('change', renderProducts);
+
+        fetchProducts();
+    </script>
+</body>
+</html>
