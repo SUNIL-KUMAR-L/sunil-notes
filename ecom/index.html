@@ -74,27 +74,41 @@
                 const productRow = document.createElement('div');
                 productRow.className = 'product-row';
 
-                categoryProducts.forEach(product => {
-                    const productDiv = document.createElement('div');
-                    productDiv.className = 'product';
-                    productDiv.innerHTML = `
-                        <img src="${product.imageUrl}" alt="${product.name}">
-                        <div class="product-info">
-                            <h3>${product.name}</h3>
-                            <p>${product.description}</p>
-                            <p class="price">Price: $${product.price.toFixed(2)}</p>
-                        </div>
-                    `;
-                    productDiv.addEventListener('click', () => {
-                        window.location.href = `product-detail.html?id=${product.id}`;
-                    });
+                const displayProducts = categoryProducts.slice(0, 3);
+                displayProducts.forEach(product => {
+                    const productDiv = createProductElement(product);
                     productRow.appendChild(productDiv);
                 });
+
+                if (categoryProducts.length > 3) {
+                    const moreLink = document.createElement('a');
+                    moreLink.href = `category.html?category=${encodeURIComponent(category)}`;
+                    moreLink.className = 'more-link';
+                    moreLink.textContent = 'More...';
+                    productRow.appendChild(moreLink);
+                }
 
                 categoryDiv.appendChild(productRow);
                 productList.appendChild(categoryDiv);
             }
             console.log("Products rendered");
+        }
+
+        function createProductElement(product) {
+            const productDiv = document.createElement('div');
+            productDiv.className = 'product';
+            productDiv.innerHTML = `
+                <img src="${product.imageUrl}" alt="${product.name}">
+                <div class="product-info">
+                    <h3>${product.name}</h3>
+                    <p>${product.description}</p>
+                    <p class="price">Price: $${product.price.toFixed(2)}</p>
+                </div>
+            `;
+            productDiv.addEventListener('click', () => {
+                window.location.href = `product-detail.html?id=${product.id}`;
+            });
+            return productDiv;
         }
 
         function groupByCategory(products) {

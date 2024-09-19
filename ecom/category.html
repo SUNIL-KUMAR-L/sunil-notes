@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Products</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+<body>
+    <header id="pageHeader"></header>
+    
+    <main>
+        <a href="index.html" class="back-button">Back to All Categories</a>
+        <h1 id="categoryTitle"></h1>
+        <div id="productList" class="product-row"></div>
+    </main>
+
+    <footer id="pageFooter"></footer>
+
+    <script src="common.js"></script>
+    <script>
+        function getCategoryFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('category');
+        }
+
+        function renderCategoryProducts() {
+            const category = getCategoryFromUrl();
+            const categoryTitle = document.getElementById('categoryTitle');
+            const productList = document.getElementById('productList');
+
+            categoryTitle.textContent = category;
+
+            const categoryProducts = products.filter(p => p.category === category);
+
+            categoryProducts.forEach(product => {
+                const productDiv = createProductElement(product);
+                productList.appendChild(productDiv);
+            });
+        }
+
+        function createProductElement(product) {
+            const productDiv = document.createElement('div');
+            productDiv.className = 'product';
+            productDiv.innerHTML = `
+                <img src="${product.imageUrl}" alt="${product.name}">
+                <div class="product-info">
+                    <h3>${product.name}</h3>
+                    <p>${product.description}</p>
+                    <p class="price">Price: $${product.price.toFixed(2)}</p>
+                </div>
+            `;
+            productDiv.addEventListener('click', () => {
+                window.location.href = `product-detail.html?id=${product.id}`;
+            });
+            return productDiv;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategoryProducts();
+        });
+    </script>
+</body>
+</html>
