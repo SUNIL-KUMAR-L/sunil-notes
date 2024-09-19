@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+<body>
+    <header id="pageHeader"></header>
+    
+    <main>
+        <a href="index.html" class="back-button">Back to Products</a>
+        <div id="productDetail" class="product-detail"></div>
+    </main>
+
+    <footer id="pageFooter"></footer>
+
+    <script src="common.js"></script>
+    <script>
+        function renderProductDetail() {
+            const productDetail = document.getElementById('productDetail');
+            const storedProduct = localStorage.getItem('selectedProduct');
+            
+            if (storedProduct) {
+                const product = JSON.parse(storedProduct);
+                productDetail.innerHTML = `
+                    <h2>${product.name}</h2>
+                    <img src="${product.imageUrl}" alt="${product.name}">
+                    <p>${product.description}</p>
+                    <p class="price">Price: $${product.price.toFixed(2)}</p>
+                    <p>Category: ${product.category}</p>
+                `;
+            } else {
+                productDetail.innerHTML = '<p>Product not found.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProductDetail();
+        });
+    </script>
+</body>
+</html>
