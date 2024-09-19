@@ -86,7 +86,6 @@
                         </div>
                     `;
                     productDiv.addEventListener('click', () => {
-                        storeProductData(product.id);
                         window.location.href = `product-detail.html?id=${product.id}`;
                     });
                     productRow.appendChild(productDiv);
@@ -103,13 +102,6 @@
                 (acc[product.category] = acc[product.category] || []).push(product);
                 return acc;
             }, {});
-        }
-
-        function storeProductData(productId) {
-            const product = products.find(p => p.id === productId);
-            if (product) {
-                localStorage.setItem('selectedProduct', JSON.stringify(product));
-            }
         }
 
         document.getElementById('searchInput').addEventListener('input', renderProducts);

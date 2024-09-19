@@ -19,12 +19,17 @@
 
     <script src="common.js"></script>
     <script>
+        function getProductIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return parseInt(urlParams.get('id'));
+        }
+
         function renderProductDetail() {
+            const productId = getProductIdFromUrl();
+            const product = products.find(p => p.id === productId);
             const productDetail = document.getElementById('productDetail');
-            const storedProduct = localStorage.getItem('selectedProduct');
             
-            if (storedProduct) {
-                const product = JSON.parse(storedProduct);
+            if (product) {
                 productDetail.innerHTML = `
                     <h2>${product.name}</h2>
                     <img src="${product.imageUrl}" alt="${product.name}">
