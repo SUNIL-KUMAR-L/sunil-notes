@@ -21,7 +21,7 @@ function setCommonHeader() {
                 <nav>
                     <ul>
                         <li><a href="index.html">Home</a></li>
-                        <li><a href="#">Products</a></li>
+                        <li><a href="category.html?category=Electronics">Products</a></li>
                         <li><a href="#">About</a></li>
                         <li><a href="#">Contact</a></li>
                         <li><a href="cart.html">Cart <span id="cartIcon">0</span></a></li>

@@ -209,10 +209,25 @@ footer {
     color: white;
     text-decoration: none;
     border-radius: 5px;
+    font-size: 14px;
 }
 
 .more-link:hover {
     background-color: #2980b9;
+}
+
+@media (max-width: 768px) {
+    .product-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .more-link {
+        width: 100%;
+        text-align: center;
+        margin-top: 15px;
+    }
 }
 
 .add-to-cart {
@@ -348,16 +363,6 @@ footer {
 
 #editOrderBtn:hover, #submitOrderBtn:hover, #returnToHomeBtn:hover {
     opacity: 0.8;
-}
-
-.product-link {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-}
-
-.product-link:hover {
-    text-decoration: none;
 }
 
 
