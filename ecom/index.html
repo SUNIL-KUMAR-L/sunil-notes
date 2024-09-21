@@ -103,11 +103,62 @@
                     <h3>${product.name}</h3>
                     <p>${product.description}</p>
                     <p class="price">Price: $${product.price.toFixed(2)}</p>
+                    <div class="add-to-cart-container">
+                        <button class="add-to-cart" data-product-id="${product.id}">Add to Cart</button>
+                        <div class="quantity-control" style="display: none;">
+                            <button class="decrease">-</button>
+                            <span class="quantity">0</span>
+                            <button class="increase">+</button>
+                        </div>
+                    </div>
                 </div>
             `;
-            productDiv.addEventListener('click', () => {
-                window.location.href = `product-detail.html?id=${product.id}`;
+
+            const addToCartBtn = productDiv.querySelector('.add-to-cart');
+            const quantityControl = productDiv.querySelector('.quantity-control');
+            const quantitySpan = productDiv.querySelector('.quantity');
+            const decreaseBtn = productDiv.querySelector('.decrease');
+            const increaseBtn = productDiv.querySelector('.increase');
+
+            addToCartBtn.addEventListener('click', () => {
+                addToCart(product);
+                updateQuantityDisplay();
             });
+
+            decreaseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const currentQuantity = parseInt(quantitySpan.textContent);
+                if (currentQuantity > 1) {
+                    updateQuantity(product.id, currentQuantity - 1);
+                } else {
+                    updateQuantity(product.id, 0);
+                    quantityControl.style.display = 'none';
+                    addToCartBtn.style.display = 'inline-block';
+                }
+                updateQuantityDisplay();
+            });
+
+            increaseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const currentQuantity = parseInt(quantitySpan.textContent);
+                updateQuantity(product.id, currentQuantity + 1);
+                updateQuantityDisplay();
+            });
+
+            function updateQuantityDisplay() {
+                const cartItem = cart.find(item => item.id === product.id);
+                if (cartItem && cartItem.quantity > 0) {
+                    quantitySpan.textContent = cartItem.quantity;
+                    quantityControl.style.display = 'inline-flex';
+                    addToCartBtn.style.display = 'none';
+                } else {
+                    quantityControl.style.display = 'none';
+                    addToCartBtn.style.display = 'inline-block';
+                }
+            }
+
+            updateQuantityDisplay();
+
             return productDiv;
         }
 

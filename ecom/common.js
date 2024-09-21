@@ -24,11 +24,13 @@ function setCommonHeader() {
                         <li><a href="#">Products</a></li>
                         <li><a href="#">About</a></li>
                         <li><a href="#">Contact</a></li>
+                        <li><a href="cart.html">Cart <span id="cartIcon">0</span></a></li>
                     </ul>
                 </nav>
             </div>
         `;
     }
+    updateCartIcon();
 }
 
 // Function to set common footer
@@ -61,6 +63,49 @@ function setCommonFooter() {
 function initializeCommonElements() {
     setCommonHeader();
     setCommonFooter();
+}
+
+// Cart functionality
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+function addToCart(product) {
+    const existingItem = cart.find(item => item.id === product.id);
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({ ...product, quantity: 1 });
+    }
+    updateCart();
+}
+
+function updateQuantity(productId, newQuantity) {
+    const index = cart.findIndex(item => item.id === productId);
+    if (index !== -1) {
+        if (newQuantity > 0) {
+            cart[index].quantity = newQuantity;
+        } else {
+            cart.splice(index, 1);
+        }
+        updateCart();
+    }
+}
+
+function updateCart() {
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartIcon();
+}
+
+function updateCartIcon() {
+    const cartIcon = document.getElementById('cartIcon');
+    if (cartIcon) {
+        const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+        cartIcon.textContent = itemCount;
+    }
+}
+
+function clearCart() {
+    cart = [];
+    updateCart();
 }
 
 // Call initializeCommonElements when the DOM is fully loaded

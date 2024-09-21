@@ -215,4 +215,139 @@ footer {
     background-color: #2980b9;
 }
 
+.add-to-cart {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.add-to-cart:hover {
+    background-color: #2980b9;
+}
+
+.cart-item {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 20px;
+}
+
+.cart-item img {
+    width: 100px;
+    height: auto;
+    margin-right: 20px;
+}
+
+#cartIcon {
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.8em;
+}
+
+#checkoutButton {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 1.1em;
+    margin-top: 20px;
+}
+
+#checkoutButton:hover {
+    background-color: #27ae60;
+}
+
+.add-to-cart-container {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-control {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.quantity-control button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.quantity-control .quantity {
+    margin: 0 10px;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.order-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    font-size: 1.2em;
+}
+
+#checkoutForm {
+    margin-top: 20px;
+}
+
+#checkoutForm label {
+    display: block;
+    margin-top: 10px;
+}
+
+#checkoutForm input,
+#checkoutForm textarea {
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+}
+
+#checkoutForm button {
+    margin-top: 20px;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+#orderReview, #orderConfirmation {
+    margin-top: 20px;
+}
+
+#reviewSummary, #customerInfo, #confirmationSummary {
+    margin-bottom: 20px;
+}
+
+#editOrderBtn, #submitOrderBtn, #returnToHomeBtn {
+    margin-right: 10px;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#submitOrderBtn {
+    background-color: #2ecc71;
+}
+
+#editOrderBtn:hover, #submitOrderBtn:hover, #returnToHomeBtn:hover {
+    opacity: 0.8;
+}
+
 

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+<body>
+    <header id="pageHeader"></header>
+    
+    <main>
+        <div id="checkoutSection">
+            <h1>Checkout</h1>
+            <div id="orderSummary"></div>
+            <form id="checkoutForm">
+                <h2>Customer Information</h2>
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
+                
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone" required>
+                
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+                
+                <label for="address">Delivery Address:</label>
+                <textarea id="address" required></textarea>
+                
+                <button type="button" id="reviewOrderBtn">Review Order</button>
+            </form>
+        </div>
+        <div id="orderReview" style="display: none;">
+            <h2>Order Review</h2>
+            <div id="reviewSummary"></div>
+            <div id="customerInfo"></div>
+            <button id="submitOrderBtn">Submit Order</button>
+            <button id="editOrderBtn">Edit Order</button>
+        </div>
+        <div id="orderConfirmation" style="display: none;">
+            <h2>Order Confirmation</h2>
+            <div id="confirmationSummary"></div>
+            <button id="returnToHomeBtn">Return to Home</button>
+        </div>
+    </main>
+
+    <footer id="pageFooter"></footer>
+
+    <script src="common.js"></script>
+    <script>
+        function renderOrderSummary() {
+            const orderSummary = document.getElementById('orderSummary');
+            let total = 0;
+            
+            orderSummary.innerHTML = `
+                <h2>Order Summary</h2>
+                ${cart.map(item => {
+                    total += item.price * item.quantity;
+                    return `
+                        <div class="order-item">
+                            <span>${item.name} x ${item.quantity}</span>
+                            <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                    `;
+                }).join('')}
+                <div class="order-total">
+                    <strong>Total:</strong>
+                    <strong>$${total.toFixed(2)}</strong>
+                </div>
+            `;
+        }
+
+        function reviewOrder() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+
+            if (!name || !phone || !email || !address) {
+                alert('Please fill in all the required information.');
+                return;
+            }
+
+            const reviewSummary = document.getElementById('reviewSummary');
+            const customerInfo = document.getElementById('customerInfo');
+            let total = 0;
+
+            reviewSummary.innerHTML = `
+                <h3>Order Items</h3>
+                ${cart.map(item => {
+                    total += item.price * item.quantity;
+                    return `
+                        <div class="order-item">
+                            <span>${item.name} x ${item.quantity}</span>
+                            <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                    `;
+                }).join('')}
+                <div class="order-total">
+                    <strong>Total:</strong>
+                    <strong>$${total.toFixed(2)}</strong>
+                </div>
+            `;
+
+            customerInfo.innerHTML = `
+                <h3>Customer Information</h3>
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Phone:</strong> ${phone}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Address:</strong> ${address}</p>
+            `;
+
+            document.getElementById('checkoutSection').style.display = 'none';
+            document.getElementById('orderReview').style.display = 'block';
+        }
+
+        function editOrder() {
+            document.getElementById('checkoutSection').style.display = 'block';
+            document.getElementById('orderReview').style.display = 'none';
+        }
+
+        function submitOrder() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+
+            // Here you would typically send this data to a server
+            console.log('Order placed:', { name, phone, email, address, cart });
+
+            const confirmationSummary = document.getElementById('confirmationSummary');
+            confirmationSummary.innerHTML = document.getElementById('reviewSummary').innerHTML + 
+                                            document.getElementById('customerInfo').innerHTML;
+
+            document.getElementById('orderReview').style.display = 'none';
+            document.getElementById('orderConfirmation').style.display = 'block';
+
+            // Clear the cart
+            clearCart();
+        }
+
+        function returnToHome() {
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderOrderSummary();
+            document.getElementById('reviewOrderBtn').addEventListener('click', reviewOrder);
+            document.getElementById('editOrderBtn').addEventListener('click', editOrder);
+            document.getElementById('submitOrderBtn').addEventListener('click', submitOrder);
+            document.getElementById('returnToHomeBtn').addEventListener('click', returnToHome);
+        });
+    </script>
+</body>
+</html>

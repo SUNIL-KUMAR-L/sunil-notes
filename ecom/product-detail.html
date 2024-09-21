@@ -36,7 +36,11 @@
                     <p>${product.description}</p>
                     <p class="price">Price: $${product.price.toFixed(2)}</p>
                     <p>Category: ${product.category}</p>
+                    <button id="addToCartButton" class="add-to-cart">Add to Cart</button>
                 `;
+                document.getElementById('addToCartButton').addEventListener('click', () => {
+                    addToCart(product);
+                });
             } else {
                 productDetail.innerHTML = '<p>Product not found.</p>';
             }
