@@ -44,18 +44,20 @@
             const productDiv = document.createElement('div');
             productDiv.className = 'product';
             productDiv.innerHTML = `
-                <img src="${product.imageUrl}" alt="${product.name}">
-                <div class="product-info">
-                    <h3>${product.name}</h3>
-                    <p>${product.description}</p>
-                    <p class="price">Price: $${product.price.toFixed(2)}</p>
-                    <div class="add-to-cart-container">
-                        <button class="add-to-cart" data-product-id="${product.id}">Add to Cart</button>
-                        <div class="quantity-control" style="display: none;">
-                            <button class="decrease">-</button>
-                            <span class="quantity">0</span>
-                            <button class="increase">+</button>
-                        </div>
+                <a href="product-detail.html?id=${product.id}" class="product-link">
+                    <img src="${product.imageUrl}" alt="${product.name}">
+                    <div class="product-info">
+                        <h3>${product.name}</h3>
+                        <p>${product.description}</p>
+                        <p class="price">Price: $${product.price.toFixed(2)}</p>
+                    </div>
+                </a>
+                <div class="add-to-cart-container">
+                    <button class="add-to-cart" data-product-id="${product.id}">Add to Cart</button>
+                    <div class="quantity-control" style="display: none;">
+                        <button class="decrease">-</button>
+                        <span class="quantity">0</span>
+                        <button class="increase">+</button>
                     </div>
                 </div>
             `;
@@ -66,13 +68,14 @@
             const decreaseBtn = productDiv.querySelector('.decrease');
             const increaseBtn = productDiv.querySelector('.increase');
 
-            addToCartBtn.addEventListener('click', () => {
+            addToCartBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent navigating to product detail page
                 addToCart(product);
                 updateQuantityDisplay();
             });
 
             decreaseBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
+                e.preventDefault(); // Prevent navigating to product detail page
                 const currentQuantity = parseInt(quantitySpan.textContent);
                 if (currentQuantity > 1) {
                     updateQuantity(product.id, currentQuantity - 1);
@@ -85,7 +88,7 @@
             });
 
             increaseBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
+                e.preventDefault(); // Prevent navigating to product detail page
                 const currentQuantity = parseInt(quantitySpan.textContent);
                 updateQuantity(product.id, currentQuantity + 1);
                 updateQuantityDisplay();

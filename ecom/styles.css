@@ -350,4 +350,14 @@ footer {
     opacity: 0.8;
 }
 
+.product-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.product-link:hover {
+    text-decoration: none;
+}
+
 

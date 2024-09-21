@@ -36,11 +36,58 @@
                     <p>${product.description}</p>
                     <p class="price">Price: $${product.price.toFixed(2)}</p>
                     <p>Category: ${product.category}</p>
-                    <button id="addToCartButton" class="add-to-cart">Add to Cart</button>
+                    <div class="add-to-cart-container">
+                        <button id="addToCartButton" class="add-to-cart">Add to Cart</button>
+                        <div class="quantity-control" style="display: none;">
+                            <button class="decrease">-</button>
+                            <span class="quantity">0</span>
+                            <button class="increase">+</button>
+                        </div>
+                    </div>
                 `;
-                document.getElementById('addToCartButton').addEventListener('click', () => {
+
+                const addToCartBtn = document.getElementById('addToCartButton');
+                const quantityControl = productDetail.querySelector('.quantity-control');
+                const quantitySpan = productDetail.querySelector('.quantity');
+                const decreaseBtn = productDetail.querySelector('.decrease');
+                const increaseBtn = productDetail.querySelector('.increase');
+
+                addToCartBtn.addEventListener('click', () => {
                     addToCart(product);
+                    updateQuantityDisplay();
                 });
+
+                decreaseBtn.addEventListener('click', () => {
+                    const currentQuantity = parseInt(quantitySpan.textContent);
+                    if (currentQuantity > 1) {
+                        updateQuantity(product.id, currentQuantity - 1);
+                    } else {
+                        updateQuantity(product.id, 0);
+                        quantityControl.style.display = 'none';
+                        addToCartBtn.style.display = 'inline-block';
+                    }
+                    updateQuantityDisplay();
+                });
+
+                increaseBtn.addEventListener('click', () => {
+                    const currentQuantity = parseInt(quantitySpan.textContent);
+                    updateQuantity(product.id, currentQuantity + 1);
+                    updateQuantityDisplay();
+                });
+
+                function updateQuantityDisplay() {
+                    const cartItem = cart.find(item => item.id === product.id);
+                    if (cartItem && cartItem.quantity > 0) {
+                        quantitySpan.textContent = cartItem.quantity;
+                        quantityControl.style.display = 'inline-flex';
+                        addToCartBtn.style.display = 'none';
+                    } else {
+                        quantityControl.style.display = 'none';
+                        addToCartBtn.style.display = 'inline-block';
+                    }
+                }
+
+                updateQuantityDisplay();
             } else {
                 productDetail.innerHTML = '<p>Product not found.</p>';
             }
