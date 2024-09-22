@@ -52,23 +52,20 @@
         function renderOrderSummary() {
             const orderSummary = document.getElementById('orderSummary');
             let total = 0;
-            
-            orderSummary.innerHTML = `
-                <h2>Order Summary</h2>
-                ${cart.map(item => {
-                    total += item.price * item.quantity;
-                    return `
-                        <div class="order-item">
-                            <span>${item.name} x ${item.quantity}</span>
-                            <span>$${(item.price * item.quantity).toFixed(2)}</span>
+            orderSummary.innerHTML = cart.map(item => {
+                total += item.price * item.quantity;
+                return `
+                    <div class="order-item">
+                        <img src="${item.imageUrl}" alt="${item.name}" class="order-item-image">
+                        <div class="order-item-details">
+                            <h3>${item.name}</h3>
+                            <p>${item.description}</p>
+                            <p>Price: $${item.price.toFixed(2)}</p>
+                            <p>Quantity: ${item.quantity}</p>
                         </div>
-                    `;
-                }).join('')}
-                <div class="order-total">
-                    <strong>Total:</strong>
-                    <strong>$${total.toFixed(2)}</strong>
-                </div>
-            `;
+                    </div>
+                `;
+            }).join('') + `<h3>Total: $${total.toFixed(2)}</h3>`;
         }
 
         function reviewOrder() {
@@ -77,32 +74,10 @@
             const email = document.getElementById('email').value;
             const address = document.getElementById('address').value;
 
-            if (!name || !phone || !email || !address) {
-                alert('Please fill in all the required information.');
-                return;
-            }
-
             const reviewSummary = document.getElementById('reviewSummary');
+            reviewSummary.innerHTML = document.getElementById('orderSummary').innerHTML;
+
             const customerInfo = document.getElementById('customerInfo');
-            let total = 0;
-
-            reviewSummary.innerHTML = `
-                <h3>Order Items</h3>
-                ${cart.map(item => {
-                    total += item.price * item.quantity;
-                    return `
-                        <div class="order-item">
-                            <span>${item.name} x ${item.quantity}</span>
-                            <span>$${(item.price * item.quantity).toFixed(2)}</span>
-                        </div>
-                    `;
-                }).join('')}
-                <div class="order-total">
-                    <strong>Total:</strong>
-                    <strong>$${total.toFixed(2)}</strong>
-                </div>
-            `;
-
             customerInfo.innerHTML = `
                 <h3>Customer Information</h3>
                 <p><strong>Name:</strong> ${name}</p>
@@ -125,9 +100,6 @@
             const phone = document.getElementById('phone').value;
             const email = document.getElementById('email').value;
             const address = document.getElementById('address').value;
-
-            // Here you would typically send this data to a server
-            console.log('Order placed:', { name, phone, email, address, cart });
 
             const confirmationSummary = document.getElementById('confirmationSummary');
             confirmationSummary.innerHTML = document.getElementById('reviewSummary').innerHTML + 

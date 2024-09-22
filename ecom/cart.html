@@ -38,16 +38,17 @@
                 total += item.price * item.quantity;
                 return `
                     <div class="cart-item">
-                        <img src="${item.imageUrl}" alt="${item.name}">
-                        <div>
+                        <img src="${item.imageUrl}" alt="${item.name}" class="cart-item-image">
+                        <div class="cart-item-details">
                             <h3>${item.name}</h3>
+                            <p>${item.description}</p>
                             <p>Price: $${item.price.toFixed(2)}</p>
-                            <p>Quantity: 
+                            <div class="quantity-control">
                                 <button onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
                                 <span>${item.quantity}</span>
                                 <button onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
-                            </p>
-                            <button onclick="removeFromCart(${item.id})">Remove</button>
+                            </div>
+                            <button onclick="removeFromCart(${item.id})" class="remove-button">Remove</button>
                         </div>
                     </div>
                 `;
