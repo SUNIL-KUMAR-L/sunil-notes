@@ -53,19 +53,21 @@
             const orderSummary = document.getElementById('orderSummary');
             let total = 0;
             orderSummary.innerHTML = cart.map(item => {
-                total += item.price * item.quantity;
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
                 return `
-                    <div class="order-item">
-                        <img src="${item.imageUrl}" alt="${item.name}" class="order-item-image">
-                        <div class="order-item-details">
+                    <div class="cart-item">
+                        <img src="${item.imageUrl}" alt="${item.name}" class="cart-item-image">
+                        <div class="cart-item-details">
                             <h3>${item.name}</h3>
                             <p>${item.description}</p>
                             <p>Price: $${item.price.toFixed(2)}</p>
                             <p>Quantity: ${item.quantity}</p>
+                            <p>Total: $${itemTotal.toFixed(2)}</p>
                         </div>
                     </div>
                 `;
-            }).join('') + `<h3>Total: $${total.toFixed(2)}</h3>`;
+            }).join('') + `<div class="cart-total"><h3>Total: $${total.toFixed(2)}</h3></div>`;
         }
 
         function reviewOrder() {
@@ -96,11 +98,6 @@
         }
 
         function submitOrder() {
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const email = document.getElementById('email').value;
-            const address = document.getElementById('address').value;
-
             const confirmationSummary = document.getElementById('confirmationSummary');
             confirmationSummary.innerHTML = document.getElementById('reviewSummary').innerHTML + 
                                             document.getElementById('customerInfo').innerHTML;

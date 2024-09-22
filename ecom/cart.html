@@ -35,7 +35,8 @@
 
             let total = 0;
             cartItems.innerHTML = cart.map(item => {
-                total += item.price * item.quantity;
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
                 return `
                     <div class="cart-item">
                         <img src="${item.imageUrl}" alt="${item.name}" class="cart-item-image">
@@ -43,10 +44,11 @@
                             <h3>${item.name}</h3>
                             <p>${item.description}</p>
                             <p>Price: $${item.price.toFixed(2)}</p>
+                            <p>Total: $${itemTotal.toFixed(2)}</p>
                             <div class="quantity-control">
-                                <button onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
-                                <span>${item.quantity}</span>
-                                <button onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                                <button class="quantity-button" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                                <span class="quantity">${item.quantity}</span>
+                                <button class="quantity-button" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
                             </div>
                             <button onclick="removeFromCart(${item.id})" class="remove-button">Remove</button>
                         </div>
