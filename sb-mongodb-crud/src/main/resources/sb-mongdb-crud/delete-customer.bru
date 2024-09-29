@@ -1,0 +1,20 @@
+meta {
+  name: delete-customer
+  type: http
+  seq: 8
+}
+
+delete {
+  url: http://localhost:8080/api/customers/989
+  body: json
+  auth: none
+}
+
+body:json {
+  { 
+    "name" : "abcd",
+    "age" : 22,
+    "email" : "s@s.com",
+    "employeeFlag" : true
+  }
+}

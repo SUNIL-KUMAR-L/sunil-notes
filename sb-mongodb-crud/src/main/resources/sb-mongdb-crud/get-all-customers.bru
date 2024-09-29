@@ -1,0 +1,16 @@
+meta {
+  name: get-all-customers
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8080/api/customers?page=0&size=2
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 0
+  size: 2
+}

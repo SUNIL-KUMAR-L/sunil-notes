@@ -1,0 +1,23 @@
+meta {
+  name: create-customer
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:8080/api/customers
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "id" : 999,
+    "name" : "999 xyz",
+    "age" : 999,
+    "email" : "999@999.com",
+    "employeeFlag" : true,
+    "dateOfBirth" : "2022-01-03",
+    "joinedDatetime" : "2024-01-14T14:04:58Z"
+  }
+}

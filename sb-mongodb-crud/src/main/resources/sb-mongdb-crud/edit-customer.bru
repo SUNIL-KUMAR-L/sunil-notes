@@ -1,0 +1,22 @@
+meta {
+  name: edit-customer
+  type: http
+  seq: 7
+}
+
+put {
+  url: http://localhost:8080/api/customers/123
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "abcd edit 1234",
+    "age": "21",
+    "email": "s@s.com",
+    "dateOfBirth" : "2022-01-03",
+    "joinedDatetime" : "2024-01-14T14:04:58Z",
+    "employeeFlag" : true
+  }
+}
