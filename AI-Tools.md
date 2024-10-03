@@ -1,0 +1,2 @@
+- **napkin ai** : text to image (https://www.napkin.ai/)
+- **sider ai** : youtube video summary (https://sider.ai/)
