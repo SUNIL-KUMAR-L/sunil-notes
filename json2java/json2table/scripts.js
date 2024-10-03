@@ -30,7 +30,12 @@ function convertJsonToTable() {
         headers.forEach(header => {
             const td = document.createElement('td');
             const value = getNestedValue(item, header);
-            td.textContent = typeof value === 'object' ? JSON.stringify(value) : value; // Display nested object as JSON string
+            // Check if the value is a boolean
+            if (typeof value === 'boolean') {
+                td.textContent = value.toString(); // Show true or false as string
+            } else {
+                td.textContent = typeof value === 'object' ? JSON.stringify(value) : value; // Display nested object as JSON string
+            }
             row.appendChild(td);
         });
         table.appendChild(row);
@@ -82,12 +87,17 @@ function convertTableToJson() {
         const rowData = {};
         row.querySelectorAll('td').forEach((td, i) => {
             const cellValue = td.textContent;
-            try {
-                // Attempt to parse the cell value as JSON
-                rowData[headers[i]] = JSON.parse(cellValue);
-            } catch (e) {
-                // If parsing fails, keep it as a string
-                rowData[headers[i]] = cellValue;
+            if (cellValue === '') {
+                // If the cell is empty, set the value to false if the header corresponds to a boolean
+                rowData[headers[i]] = false; // Assuming the header corresponds to a boolean
+            } else {
+                try {
+                    // Attempt to parse the cell value as JSON
+                    rowData[headers[i]] = JSON.parse(cellValue);
+                } catch (e) {
+                    // If parsing fails, keep it as a string
+                    rowData[headers[i]] = cellValue;
+                }
             }
         });
         jsonOutput.push(rowData);
