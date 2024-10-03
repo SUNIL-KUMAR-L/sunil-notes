@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON to Java Class Converter</title>
+    <style>
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ccc;
+            overflow: auto;
+        }
+        section {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSON to Java Class Converter</h1>
+    <textarea id="jsonInput" placeholder="Enter JSON here..." rows="10" cols="50"></textarea><br>
+    <button onclick="convertJson()">Convert</button>
+
+    <section id="inputJsonSection" style="display:none;">
+        <h2>Input JSON (Pretty JSON):</h2>
+        <pre id="inputJsonOutput"></pre>
+    </section>
+
+    <section id="projectStructureSection" style="display:none;">
+        <h2>Java Project Structure:</h2>
+        <pre id="projectStructureOutput"></pre>
+    </section>
+
+    <section id="pomXmlSection" style="display:none;">
+        <h2>pom.xml:</h2>
+        <pre id="pomXmlOutput"></pre>
+    </section>
+
+    <section id="javaClassesSection" style="display:none;">
+        <h2>Generated Java Classes:</h2>
+        <pre id="javaOutput"></pre>
+    </section>
+
+    <section id="exampleOutputSection" style="display:none;">
+        <h2>Output Sample Example:</h2>
+        <pre id="exampleOutput"></pre>
+    </section>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
