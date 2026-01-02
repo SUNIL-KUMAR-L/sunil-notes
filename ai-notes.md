@@ -21,7 +21,7 @@ Spring ai
 Google adk
 google a2a
 
-**Techvangelists**
+### **Techvangelists**
 
 How to Build Agents with Google ADK and Local model using Ollama - FREE
 
@@ -31,12 +31,11 @@ Master Agent2Agent (A2A) Protocol: Multi-Agent AI Crash Course + Real-World Demo
 
 https://www.youtube.com/watch?v=c-d9d0cAw1g
 
-github :
+#### github (pianistprogrammer) :
+- https://github.com/pianistprogrammer/a2a-multi-agents/tree/main
 
-https://github.com/pianistprogrammer/a2a-multi-agents/tree/main
 
-
-**aiwithbrandon**
+### **aiwithbrandon**
 
 Agent2Agent (A2A) Crash Course: Full Walkthrough With Real Multi-Agent Examples
 
@@ -75,5 +74,16 @@ https://www.youtube.com/watch?v=oPS6KK_pFzc
 
 
 **KodeKloud**
+
 Google A2A Protocol: The Future of AI Agent Collaboration Explained!
+
 https://www.youtube.com/watch?v=RA8wFVWn-EU
+
+**kuldeepsingh99**
+
+java Spring AI + A2A : 
+
+- https://github.com/kuldeepsingh99/google-a2a/tree/main
+- A practical guide to building Multi-Agents AI Systems with A2A
+- https://medium.com/manomano-tech/a-practical-guide-to-building-multi-agents-ai-systems-with-a2a-f61a4ef7c51a
+
